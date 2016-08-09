@@ -4,10 +4,10 @@
 
 #include "dataio.h"
 
-//
+// metainfo
 
 
-//
+// tiff
 TiffIO::TiffIO()
 {
     // supported file suffix
