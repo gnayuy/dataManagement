@@ -22,12 +22,10 @@
 #include <limits>
 #include <complex>
 #include <float.h>
+using namespace std;
 
 //
 #include <curl/curl.h>
-
-//
-#include <json/json.h>
 
 //
 #include <tiff.h>
@@ -39,7 +37,8 @@
 #endif
 
 //
-using namespace std;
+#include "json.hpp"
+using nlohmann::json;
 
 // types
 typedef enum { UNKNOWNDATATYPE, UCHAR, CHAR, USHORT, SHORT, UINT, INT, ULONG, LONG, FLOAT, DOUBLE } DataType;
