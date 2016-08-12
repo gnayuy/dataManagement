@@ -7,8 +7,24 @@
 
 #include "dataio.h"
 
-
-
-
+//
+class Image
+{
+public:
+    Image();
+    ~Image();
+    
+public:
+    void getOffset(string octreepath, double ox, double oy, double oz, double vx, double vy, double vz, long dimx, long dimy, long dimz, double &offx, double &offy, double &offz);
+    void setOrigin(double x, double y, double z);
+    void setDimension(long x, long  y, long z);
+    void setResolution(double x, double y, double z);
+    
+public:
+    unsigned char *p;
+    double ox,oy,oz;
+    double vx,vy,vz;
+    long dimx,dimy,dimz;
+};
 
 #endif // __DATAMANAGEMENT_H__

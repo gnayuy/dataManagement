@@ -13,6 +13,15 @@ MetaInfo::~MetaInfo()
 {
 }
 
+// tile
+Tile::Tile()
+{
+}
+
+Tile::~Tile()
+{
+}
+
 // tiff
 TiffIO::TiffIO()
 {
