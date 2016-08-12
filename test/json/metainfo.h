@@ -1,4 +1,5 @@
-
+// define meta information here
+// Yang Yu (gnayuy@gmail.com)
 
 #include <deque>
 #include <queue>
@@ -18,9 +19,13 @@
 #include <float.h>
 using namespace std;
 
-//
+// metainfo
 class MetaInfo
 {
+public:
+    MetaInfo(){};
+    ~MetaInfo(){};
+    
 public:
     string name; // name of the specimen
     string unit; // "micrometer"/"nanometer"
@@ -32,9 +37,17 @@ public:
     unsigned int number_of_channels;
 };
 
-class FileList
+// tile
+class Tile
 {
 public:
-    string octree_path;
-    string channel1, channel2, channel3;
+    Tile(){};
+    ~Tile(){};
+    
+public:
+    string uuid;
+    string octreepath;
+    string ch1, ch2, ch3;
 };
+
+typedef std::vector<Tile> tileList;

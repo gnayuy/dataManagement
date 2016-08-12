@@ -204,6 +204,21 @@ public:
     unsigned int number_of_channels;
 };
 
+// tile
+class Tile
+{
+public:
+    Tile();
+    ~Tile();
+    
+public:
+    string uuid;
+    string octreepath;
+    string ch1, ch2, ch3;
+};
+
+typedef std::vector<Tile> tileList;
+
 // tiff image
 class TiffIO
 {
