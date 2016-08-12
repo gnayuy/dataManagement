@@ -5,7 +5,13 @@
 #include "dataio.h"
 
 // metainfo
+MetaInfo::MetaInfo()
+{
+}
 
+MetaInfo::~MetaInfo()
+{
+}
 
 // tiff
 TiffIO::TiffIO()
