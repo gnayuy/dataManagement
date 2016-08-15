@@ -1,13 +1,18 @@
 # dataManagement
 a research data management software
 
+## compile
+To compile dataManagement, you need to compile [LibTIFF][] and [C++ REST SDK][] first. To compile [C++ REST SDK][], you have to compile [boost][] and [OpenSSL][].
+
+dataManagement use [JSON for Modern C++][] read and write data information saved in json file.
+
 ## api
 
-## to do
+dataManagement <server> <fileList>
 
-1. read/write TIFF images
-2. read/write binary data (array with meta info)
-3. using libcurl implement HTTP POST/GET
-4. define api to POST/GET binary data to/from DVID
-
+[LibTIFF]: http://www.remotesensing.org/libtiff
+[C++ REST SDK]:https://github.com/Microsoft/cpprestsdk
+[JSON for Modern C++]:https://github.com/nlohmann/json
+[boost]:http://www.boost.org
+[OpenSSL]:https://www.openssl.org
 
