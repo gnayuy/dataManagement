@@ -7,9 +7,9 @@ To compile dataManagement, you need to compile [LibTIFF][] and [C++ REST SDK][] 
 dataManagement use [JSON for Modern C++][] read and write data information saved in json file.
 
 ## api
-dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server.
+dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server:
 
-  % dataManagement <server> <POST> <fileList>.
+  % dataManagement <server> <POST> <fileList>
   % dataManagement <server> <GET>
   
 
