@@ -2,7 +2,7 @@
 a research data management software
 
 ## compile
-To compile dataManagement, you need to compile [LibTIFF][] and [C++ REST SDK][] first. To compile [C++ REST SDK][], you have to compile [boost][] and [OpenSSL][].
+To compile dataManagement, you need to compile [LibTIFF][] and [C++ REST SDK][] first. To compile [C++ REST SDK][], you have to compile [boost][] and [OpenSSL][]. [WebSocket++][] is recommended for compilation of [C++ REST SDK][].
 
 dataManagement use [JSON for Modern C++][] read and write data information saved in json file.
 
@@ -19,4 +19,5 @@ dataManagement use rest api to read/write multiple channel 3D image stacks via H
 [JSON for Modern C++]:https://github.com/nlohmann/json
 [boost]:http://www.boost.org
 [OpenSSL]:https://www.openssl.org
+[WebSocket++]: https://github.com/zaphoyd/websocketpp
 
