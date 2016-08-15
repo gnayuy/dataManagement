@@ -8,9 +8,10 @@ dataManagement use [JSON for Modern C++][] read and write data information saved
 
 ## api
 dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server:
-
+```
   % dataManagement <server> <POST> <fileList>
   % dataManagement <server> <GET>
+```
   
 ##
 
