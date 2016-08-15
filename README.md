@@ -2,7 +2,9 @@
 a research data management software
 
 ## compile with cmake
-Install [LibTIFF][] and [C++ REST SDK][]. To compile [C++ REST SDK][], [boost][], [OpenSSL][], and [WebSocket++][] are required.
+Install [LibTIFF][] for reading/writing TIFF images.
+
+Install [C++ REST SDK][] for using REST api. To compile [C++ REST SDK][], [boost][], [OpenSSL][], and [WebSocket++][] are required.
 
 dataManagement use [JSON for Modern C++][], C++ header, read and write meta information saved in a json file.
 
