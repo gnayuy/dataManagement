@@ -8,7 +8,8 @@ dataManagement use [JSON for Modern C++][] read and write data information saved
 
 ## api
 
-dataManagement <server> <fileList>
+dataManagement <server> <fileList>.
+
 
 [LibTIFF]: http://www.remotesensing.org/libtiff
 [C++ REST SDK]:https://github.com/Microsoft/cpprestsdk
