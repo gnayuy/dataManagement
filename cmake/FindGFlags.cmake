@@ -1,6 +1,6 @@
 # - Find GFLAGS
 #
-# Find the CGAL includes and libraries
+# Find the GFLAGS includes and libraries
 # This module defines
 #  GFLAGS_FOUND           - TRUE if found, FALSE otherwise
 #  GFLAGS_INCLUDE_DIR     - Include directories for GFLAGS

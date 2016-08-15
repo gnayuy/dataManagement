@@ -1,6 +1,6 @@
 # - Find TIFF
 #
-# Find the CGAL includes and libraries
+# Find the TIFF includes and libraries
 # This module defines
 #  TIFF_FOUND           - TRUE if found, FALSE otherwise
 #  TIFF_INCLUDE_DIR     - Include directories for TIFF

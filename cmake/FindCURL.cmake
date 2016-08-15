@@ -1,6 +1,6 @@
 # - Find CURL
 #
-# Find the CGAL includes and libraries
+# Find the CURL includes and libraries
 # This module defines
 #  CURL_FOUND           - TRUE if found, FALSE otherwise
 #  CURL_INCLUDE_DIR     - Include directories for CURL
