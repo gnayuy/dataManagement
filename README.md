@@ -1,10 +1,12 @@
 # dataManagement
 a research data management software
 
-## compile
-To compile dataManagement, you need to compile [LibTIFF][] and [C++ REST SDK][] first. To compile [C++ REST SDK][], you have to compile [boost][] and [OpenSSL][]. [WebSocket++][] is recommended for compilation of [C++ REST SDK][].
+## compile with cmake
+Install [LibTIFF][] and [C++ REST SDK][]. To compile [C++ REST SDK][], [boost][], [OpenSSL][], and [WebSocket++][] are required.
 
-dataManagement use [JSON for Modern C++][] read and write data information saved in json file.
+dataManagement use [JSON for Modern C++][], C++ header, read and write meta information saved in a json file.
+
+Install [gflags][] for using the command lines. This is an option for compiling the example code.
 
 ## api
 dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server:
@@ -17,6 +19,7 @@ dataManagement use rest api to read/write multiple channel 3D image stacks via H
 
 [LibTIFF]: http://www.remotesensing.org/libtiff
 [C++ REST SDK]:https://github.com/Microsoft/cpprestsdk
+[gflags]: https://github.com/gflags/gflags
 [JSON for Modern C++]:https://github.com/nlohmann/json
 [boost]:http://www.boost.org
 [OpenSSL]:https://www.openssl.org
