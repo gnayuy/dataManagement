@@ -8,7 +8,9 @@ dataManagement use [JSON for Modern C++][] read and write data information saved
 
 ## api
 dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server.
-  % dataManagement <server> <fileList>.
+
+  % dataManagement <server> <POST> <fileList>.
+  % dataManagement <server> <GET>
   
 
 [LibTIFF]: http://www.remotesensing.org/libtiff
