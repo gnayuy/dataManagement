@@ -1,0 +1,21 @@
+
+dvid repos new MouseLightSubset "MouseLightSubset"
+#New repo "MouseLightSubset" created with head node 6e80b99384a740cf800268b0b92aa970
+
+dvid repo 6e8 new uint8blk grayscale VoxelSize=250.02763671875,251.55907495471,1001.04044117647
+#Data "grayscale" [uint8blk] added to node 6e80b99384a740cf800268b0b92aa970
+
+http://localhost:8000/api/node/6e8/grayscale/info
+
+dvid repo 6e8 new keyvalue metadata
+#Data "metadata" [keyvalue] added to node 6e80b99384a740cf800268b0b92aa970
+
+http://localhost:8000/api/node/6e8/metadata/info
+
+dvid -stdin node 6e8 metadata put mouselightbranch3 < data/mouselight_2015_07_11_johan.json 
+#Put 507 bytes into key "mouselightbranch3" for keyvalue "metadata", uuid 6e8
+
+http://localhost:8000/api/node/6e8/metadata/keys
+http://localhost:8000/api/node/6e8/metadata/key/mouselightbranch3
+
+
