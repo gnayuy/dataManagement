@@ -38,9 +38,6 @@ using namespace std;
 using nlohmann::json;
 
 //
-//#include <curl/curl.h>
-
-//
 #include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
 
