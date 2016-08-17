@@ -1,0 +1,9 @@
+src
+build/test/json
+build/test/cpprestsdk
+test/cpprestsdk
+build/CMakeFiles/3.6.20160623-gc2c2a/CompilerIdC
+test/json
+build/CMakeFiles/3.6.20160623-gc2c2a/CompilerIdCXX
+include
+build/CMakeFiles
