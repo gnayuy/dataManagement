@@ -1,0 +1,543 @@
+Sending log messages to: /lhome/yy/work/mouselight/dvidspace/config/august4.log
+fatal error: unexpected signal during runtime execution
+[signal 0xb code=0x80 addr=0x0 pc=0xa2c78b]
+
+runtime stack:
+runtime.throw(0xdcf660, 0x2a)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/panic.go:547 +0x90
+runtime.sigpanic()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sigpanic_unix.go:12 +0x5a
+
+goroutine 163 [syscall, locked to thread]:
+runtime.cgocall(0xa3a250, 0xc820456808, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/cgocall.go:123 +0x11b fp=0xc8204567b8 sp=0xc820456788
+github.com/janelia-flyem/go/golz4._Cfunc_LZ4_compress_limitedOutput(0xc8201cc800, 0xc8201cd004, 0x78000000769, 0x0)
+	github.com/janelia-flyem/go/golz4/_obj/_cgo_gotypes.go:62 +0x41 fp=0xc820456808 sp=0xc8204567b8
+github.com/janelia-flyem/go/golz4.Compress(0xc8201cc800, 0x769, 0x7ca, 0xc8201cd004, 0x780, 0x780, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/golz4/lz4.go:50 +0xdd fp=0xc8204568a8 sp=0xc820456808
+github.com/janelia-flyem/dvid/dvid.SerializeData(0xc8201cc800, 0x769, 0x7ca, 0x1ff04, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/serialize.go:208 +0xc0c fp=0xc820456a40 sp=0xc8204568a8
+github.com/janelia-flyem/dvid/dvid.Serialize(0xc9cac0, 0xc8202220d0, 0x1ff04, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/serialize.go:261 +0x188 fp=0xc820456ad8 sp=0xc820456a40
+github.com/janelia-flyem/dvid/datastore.(*repoT).save(0xc8202220d0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/repo_local.go:1959 +0xc8 fp=0xc820456c78 sp=0xc820456ad8
+github.com/janelia-flyem/dvid/datastore.(*repoManager).newData(0xc820210000, 0xc8200fb120, 0x20, 0x7f84ac126468, 0xc8201a22a0, 0xc8201983d0, 0x9, 0xc820192c90, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/repo_local.go:1519 +0xb15 fp=0xc820456e68 sp=0xc820456c78
+github.com/janelia-flyem/dvid/datastore.NewData(0xc8200fb120, 0x20, 0x7f84ac126468, 0xc8201a22a0, 0xc8201983d0, 0x9, 0xc820192c90, 0x0, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/datastore.go:256 +0xe0 fp=0xc820456ed0 sp=0xc820456e68
+github.com/janelia-flyem/dvid/server.handleCommand(0xc820192c60, 0xc82001caa0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/rpc.go:287 +0xeb5 fp=0xc820457768 sp=0xc820456ed0
+runtime.call32(0xc8200887c0, 0xe518d0, 0xc8200fb060, 0x800000020)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:472 +0x3e fp=0xc820457790 sp=0xc820457768
+reflect.Value.call(0xb22ce0, 0xe518d0, 0x13, 0xcd1ba0, 0x4, 0xc8200fb040, 0x1, 0x1, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/go/src/reflect/value.go:435 +0x120d fp=0xc820457ae0 sp=0xc820457790
+reflect.Value.Call(0xb22ce0, 0xe518d0, 0x13, 0xc8200fb040, 0x1, 0x1, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/reflect/value.go:303 +0xb1 fp=0xc820457b40 sp=0xc820457ae0
+github.com/valyala/gorpc.dispatchRequest(0xc8202184e0, 0xc820236030, 0xf, 0xc8200fae60, 0x458c40)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/dispatcher.go:388 +0xa66 fp=0xc820457d40 sp=0xc820457b40
+github.com/valyala/gorpc.(*Dispatcher).NewHandlerFunc.func1(0xc820236030, 0xf, 0xa53be0, 0xc8200fae60, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/dispatcher.go:322 +0x10f fp=0xc820457d98 sp=0xc820457d40
+github.com/valyala/gorpc.callHandlerWithRecover(0xe51e98, 0xc820216240, 0xc820236030, 0xf, 0xc82000f3c0, 0xe, 0xa53be0, 0xc8200fae60, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:410 +0xef fp=0xc820457de0 sp=0xc820457d98
+github.com/valyala/gorpc.serveRequest(0xc8201f40e0, 0xc8201fe0c0, 0xc8201fe120, 0xc82001ca50, 0xc8201fe540)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:379 +0x187 fp=0xc820457f58 sp=0xc820457de0
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1 fp=0xc820457f60 sp=0xc820457f58
+created by github.com/valyala/gorpc.serverReader
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:360 +0x597
+
+goroutine 1 [semacquire, 18765 minutes]:
+sync.runtime_Semacquire(0xc8201f41bc)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sema.go:47 +0x26
+sync.(*WaitGroup).Wait(0xc8201f41b0)
+	/lhome/yy/work/mouselight/gospace/go/src/sync/waitgroup.go:127 +0xb4
+github.com/valyala/gorpc.(*Server).Serve(0xc8201f40e0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:177 +0x73
+github.com/janelia-flyem/dvid/rpc.StartServer(0xc82000f3c0, 0xe, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/rpc/server.go:171 +0x1ed
+github.com/janelia-flyem/dvid/server.Serve(0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server_local.go:259 +0x5a9
+main.DoServe(0xc82000a2a0, 0x2, 0x2, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:263 +0x766
+main.DoCommand(0xc82000a2a0, 0x2, 0x2, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:172 +0x2ba
+main.main()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:156 +0x3e1
+
+goroutine 17 [syscall, 18765 minutes, locked to thread]:
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1
+
+goroutine 5 [syscall, 18765 minutes]:
+os/signal.signal_recv(0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sigqueue.go:116 +0x132
+os/signal.loop()
+	/lhome/yy/work/mouselight/gospace/go/src/os/signal/signal_unix.go:22 +0x18
+created by os/signal.init.1
+	/lhome/yy/work/mouselight/gospace/go/src/os/signal/signal_unix.go:28 +0x37
+
+goroutine 6 [chan receive]:
+github.com/janelia-flyem/dvid/dvid.init.1.func1()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/distributed.go:37 +0x46
+created by github.com/janelia-flyem/dvid/dvid.init.1
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/distributed.go:48 +0x59
+
+goroutine 7 [select]:
+github.com/janelia-flyem/dvid/storage.loadMonitor()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/storage/monitor.go:81 +0x348
+created by github.com/janelia-flyem/dvid/storage.init.3
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/storage/monitor.go:74 +0x153
+
+goroutine 8 [chan receive]:
+github.com/janelia-flyem/dvid/server.init.2.func1(0xc8201a2060, 0xc82000e510)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:125 +0x3a
+created by github.com/janelia-flyem/dvid/server.init.2
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:136 +0x211
+
+goroutine 9 [select]:
+github.com/janelia-flyem/dvid/server.init.2.func2()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:142 +0x276
+created by github.com/janelia-flyem/dvid/server.init.2
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:152 +0x229
+
+goroutine 10 [select, 18765 minutes]:
+github.com/janelia-flyem/go/profiler.init.1.func1()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/profiler/web_endpoints.go:59 +0x462
+created by github.com/janelia-flyem/go/profiler.init.1
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/profiler/web_endpoints.go:93 +0x8b
+
+goroutine 11 [chan receive, 18765 minutes]:
+main.DoServe.func1(0xc8201a2480)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:211 +0x72
+created by main.DoServe
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:230 +0x74
+
+goroutine 12 [select, 18765 minutes, locked to thread]:
+runtime.gopark(0xe52650, 0xc82003f728, 0xcd9600, 0x6, 0x18, 0x2)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/proc.go:262 +0x163
+runtime.selectgoImpl(0xc82003f728, 0x0, 0x18)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/select.go:392 +0xa67
+runtime.selectgo(0xc82003f728)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/select.go:215 +0x12
+runtime.ensureSigM.func1()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/signal1_unix.go:279 +0x358
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1
+
+goroutine 34 [IO wait, 18765 minutes]:
+net.runtime_pollWait(0x7f84ac08f308, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820238060, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820238060, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc820238000, 0x0, 0x7f84ac093400, 0xc8200fa0a0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc820044028, 0x4d8a11, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net/http.tcpKeepAliveListener.Accept(0xc820044028, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2427 +0x41
+net/http.(*Server).Serve(0xc820022180, 0x7f84ac08f3c8, 0xc820044028, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2117 +0x129
+net/http.(*Server).ListenAndServe(0xc820022180, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2098 +0x136
+net/http.ListenAndServe(0xcd15a0, 0x5, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2195 +0x98
+created by main.DoServe
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:260 +0x761
+
+goroutine 35 [IO wait, 205 minutes]:
+net.runtime_pollWait(0x7f84ac08f188, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820012ae0, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820012ae0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc820012a80, 0x0, 0x7f84ac093400, 0xc820010620)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc8201aa078, 0x459500, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net/http.tcpKeepAliveListener.Accept(0xc8201aa078, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2427 +0x41
+net/http.(*Server).Serve(0xc8201ae300, 0x7f84ac08f3c8, 0xc8201aa078, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2117 +0x129
+net/http.(*Server).ListenAndServe(0xc8201ae300, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2098 +0x136
+github.com/janelia-flyem/dvid/server.serveHTTP()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/web.go:415 +0x30a
+created by github.com/janelia-flyem/dvid/server.Serve
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server_local.go:256 +0x58d
+
+goroutine 36 [select]:
+github.com/valyala/gorpc.serverHandler(0xc8201f40e0, 0xc8201fe540)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:200 +0x496
+created by github.com/valyala/gorpc.(*Server).Start
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:158 +0x5ae
+
+goroutine 194 [select]:
+github.com/valyala/gorpc.serverHandleConnection(0xc8201f40e0, 0x7f84ac126fb8, 0xc8201aa000, 0xc820236030, 0xf, 0xc8201fe540)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:277 +0x914
+created by github.com/valyala/gorpc.serverHandler
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:221 +0x468
+
+goroutine 195 [IO wait]:
+net.runtime_pollWait(0x7f84ac08f248, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820212140, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820212140, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc8202120e0, 0x0, 0x7f84ac093400, 0xc8200db060)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc820224100, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net.(*TCPListener).Accept(0xc820224100, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:264 +0x3d
+github.com/valyala/gorpc.(*defaultListener).Accept(0xc820216250, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/transport.go:74 +0x7a
+github.com/valyala/gorpc.serverHandler.func1(0xc820216440, 0xc820216450, 0xc820216460, 0xc8201f40e0, 0xc820216470, 0xc8200ea060)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:192 +0x4d
+created by github.com/valyala/gorpc.serverHandler
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:198 +0x142
+
+goroutine 30 [IO wait]:
+net.runtime_pollWait(0x7f84ac08f008, 0x72, 0xc8208d2000)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820212060, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820212060, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).Read(0xc820212000, 0xc8208d2000, 0x10000, 0x10000, 0x0, 0x7f84ac11f050, 0xc82000e240)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:250 +0x23a
+net.(*conn).Read(0xc8201aa000, 0xc8208d2000, 0x10000, 0x10000, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/net.go:172 +0xe4
+github.com/valyala/gorpc.(*readerCounter).Read(0xc8200fa000, 0xc8208d2000, 0x10000, 0x10000, 0xa53be0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/conn_stats.go:118 +0x74
+bufio.(*Reader).fill(0xc8201a2300)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:97 +0x1e9
+bufio.(*Reader).ReadByte(0xc8201a2300, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:229 +0x7a
+compress/flate.(*decompressor).moreBits(0xc82019e400, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:719 +0x4d
+compress/flate.(*decompressor).nextBlock(0xc82019e400)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:314 +0x20e
+compress/flate.(*decompressor).Read(0xc82019e400, 0xc8208e2000, 0x10000, 0x10000, 0xc8200fad00, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:355 +0x1ae
+bufio.(*Reader).fill(0xc8201a2420)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:97 +0x1e9
+bufio.(*Reader).Read(0xc8201a2420, 0xc820198000, 0x1, 0x9, 0xa7f3e0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:207 +0x260
+io.ReadAtLeast(0x7f84ac093450, 0xc8201a2420, 0xc820198000, 0x1, 0x9, 0x1, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/io/io.go:297 +0xe6
+io.ReadFull(0x7f84ac093450, 0xc8201a2420, 0xc820198000, 0x1, 0x9, 0xc800000000, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/io/io.go:315 +0x62
+encoding/gob.decodeUintReader(0x7f84ac093450, 0xc8201a2420, 0xc820198000, 0x9, 0x9, 0x0, 0x1, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decode.go:119 +0x92
+encoding/gob.(*Decoder).recvMessage(0xc8201ae000, 0xc8208f9c30)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:76 +0x5e
+encoding/gob.(*Decoder).decodeTypeSequence(0xc8201ae000, 0xe52700, 0xc8201ae000)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:140 +0x47
+encoding/gob.(*Decoder).DecodeValue(0xc8201ae000, 0xa53e20, 0xc8200fa0a0, 0x16, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:208 +0x15d
+encoding/gob.(*Decoder).Decode(0xc8201ae000, 0xa53e20, 0xc8200fa0a0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:185 +0x289
+github.com/valyala/gorpc.(*messageDecoder).Decode(0xc8200fa040, 0xa53e20, 0xc8200fa0a0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/encoding.go:100 +0x44
+github.com/valyala/gorpc.serverReader(0xc8201f40e0, 0x7f84ac03e100, 0xc8201aa000, 0xc820236030, 0xf, 0xc8201fe0c0, 0xc8201fe120, 0xc8201fe180, 0x1, 0xc8201fe540)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:336 +0x144
+created by github.com/valyala/gorpc.serverHandleConnection
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:272 +0x636
+
+goroutine 31 [select]:
+github.com/valyala/gorpc.serverWriter(0xc8201f40e0, 0x7f84ac03e128, 0xc8201aa000, 0xc820236030, 0xf, 0xc8201fe0c0, 0xc8201fe120, 0xc8201fe1e0, 0x1)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:432 +0x8ca
+created by github.com/valyala/gorpc.serverHandleConnection
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:275 +0x704
+Sending log messages to: /lhome/yy/work/mouselight/dvidspace/config/august4.log
+fatal error: unexpected signal during runtime execution
+[signal 0xb code=0x80 addr=0x0 pc=0xa2c78b]
+
+runtime stack:
+runtime.throw(0xdcf660, 0x2a)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/panic.go:547 +0x90
+runtime.sigpanic()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sigpanic_unix.go:12 +0x5a
+
+goroutine 104 [syscall, locked to thread]:
+runtime.cgocall(0xa3a250, 0xc8204a2808, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/cgocall.go:123 +0x11b fp=0xc8204a27b8 sp=0xc8204a2788
+github.com/janelia-flyem/go/golz4._Cfunc_LZ4_compress_limitedOutput(0xc8201dc800, 0xc8201dd004, 0x78000000769, 0x0)
+	github.com/janelia-flyem/go/golz4/_obj/_cgo_gotypes.go:62 +0x41 fp=0xc8204a2808 sp=0xc8204a27b8
+github.com/janelia-flyem/go/golz4.Compress(0xc8201dc800, 0x769, 0x7ca, 0xc8201dd004, 0x780, 0x780, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/golz4/lz4.go:50 +0xdd fp=0xc8204a28a8 sp=0xc8204a2808
+github.com/janelia-flyem/dvid/dvid.SerializeData(0xc8201dc800, 0x769, 0x7ca, 0x1ff04, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/serialize.go:208 +0xc0c fp=0xc8204a2a40 sp=0xc8204a28a8
+github.com/janelia-flyem/dvid/dvid.Serialize(0xc9cac0, 0xc82008eea0, 0x1ff04, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/serialize.go:261 +0x188 fp=0xc8204a2ad8 sp=0xc8204a2a40
+github.com/janelia-flyem/dvid/datastore.(*repoT).save(0xc82008eea0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/repo_local.go:1959 +0xc8 fp=0xc8204a2c78 sp=0xc8204a2ad8
+github.com/janelia-flyem/dvid/datastore.(*repoManager).newData(0xc8200be820, 0xc8201b11a0, 0x20, 0x7f3eb26ca5a8, 0xc820084540, 0xc820089570, 0x9, 0xc8201bb050, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/repo_local.go:1519 +0xb15 fp=0xc8204a2e68 sp=0xc8204a2c78
+github.com/janelia-flyem/dvid/datastore.NewData(0xc8201b11a0, 0x20, 0x7f3eb26ca5a8, 0xc820084540, 0xc820089570, 0x9, 0xc8201bb050, 0x0, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/datastore/datastore.go:256 +0xe0 fp=0xc8204a2ed0 sp=0xc8204a2e68
+github.com/janelia-flyem/dvid/server.handleCommand(0xc8201bb020, 0xc821296190, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/rpc.go:287 +0xeb5 fp=0xc8204a3768 sp=0xc8204a2ed0
+runtime.call32(0xc8203dc500, 0xe518d0, 0xc8201b0e20, 0x800000020)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:472 +0x3e fp=0xc8204a3790 sp=0xc8204a3768
+reflect.Value.call(0xb22ce0, 0xe518d0, 0x13, 0xcd1ba0, 0x4, 0xc8201b0e00, 0x1, 0x1, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/go/src/reflect/value.go:435 +0x120d fp=0xc8204a3ae0 sp=0xc8204a3790
+reflect.Value.Call(0xb22ce0, 0xe518d0, 0x13, 0xc8201b0e00, 0x1, 0x1, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/reflect/value.go:303 +0xb1 fp=0xc8204a3b40 sp=0xc8204a3ae0
+github.com/valyala/gorpc.dispatchRequest(0xc8200bc120, 0xc82128e050, 0xf, 0xc8201b0c20, 0x458c40)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/dispatcher.go:388 +0xa66 fp=0xc8204a3d40 sp=0xc8204a3b40
+github.com/valyala/gorpc.(*Dispatcher).NewHandlerFunc.func1(0xc82128e050, 0xf, 0xa53be0, 0xc8201b0c20, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/dispatcher.go:322 +0x10f fp=0xc8204a3d98 sp=0xc8204a3d40
+github.com/valyala/gorpc.callHandlerWithRecover(0xe51e98, 0xc82000e1f0, 0xc82128e050, 0xf, 0xc820089230, 0xe, 0xa53be0, 0xc8201b0c20, 0x0, 0x0, ...)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:410 +0xef fp=0xc8204a3de0 sp=0xc8204a3d98
+github.com/valyala/gorpc.serveRequest(0xc8202080e0, 0xc8200848a0, 0xc820084900, 0xc821296140, 0xc820020180)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:379 +0x187 fp=0xc8204a3f58 sp=0xc8204a3de0
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1 fp=0xc8204a3f60 sp=0xc8204a3f58
+created by github.com/valyala/gorpc.serverReader
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:360 +0x597
+
+goroutine 1 [semacquire, 1 minutes]:
+sync.runtime_Semacquire(0xc8202081bc)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sema.go:47 +0x26
+sync.(*WaitGroup).Wait(0xc8202081b0)
+	/lhome/yy/work/mouselight/gospace/go/src/sync/waitgroup.go:127 +0xb4
+github.com/valyala/gorpc.(*Server).Serve(0xc8202080e0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:177 +0x73
+github.com/janelia-flyem/dvid/rpc.StartServer(0xc820089230, 0xe, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/rpc/server.go:171 +0x1ed
+github.com/janelia-flyem/dvid/server.Serve(0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server_local.go:259 +0x5a9
+main.DoServe(0xc820086120, 0x2, 0x2, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:263 +0x766
+main.DoCommand(0xc820086120, 0x2, 0x2, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:172 +0x2ba
+main.main()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:156 +0x3e1
+
+goroutine 17 [syscall, 1 minutes, locked to thread]:
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1
+
+goroutine 19 [syscall, 1 minutes]:
+os/signal.signal_recv(0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/sigqueue.go:116 +0x132
+os/signal.loop()
+	/lhome/yy/work/mouselight/gospace/go/src/os/signal/signal_unix.go:22 +0x18
+created by os/signal.init.1
+	/lhome/yy/work/mouselight/gospace/go/src/os/signal/signal_unix.go:28 +0x37
+
+goroutine 20 [chan receive]:
+github.com/janelia-flyem/dvid/dvid.init.1.func1()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/distributed.go:37 +0x46
+created by github.com/janelia-flyem/dvid/dvid.init.1
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/dvid/distributed.go:48 +0x59
+
+goroutine 21 [select]:
+github.com/janelia-flyem/dvid/storage.loadMonitor()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/storage/monitor.go:81 +0x348
+created by github.com/janelia-flyem/dvid/storage.init.3
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/storage/monitor.go:74 +0x153
+
+goroutine 22 [runnable]:
+github.com/janelia-flyem/dvid/server.init.2.func1(0xc820084180, 0xc8200883a0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:125 +0x3a
+created by github.com/janelia-flyem/dvid/server.init.2
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:136 +0x211
+
+goroutine 23 [select]:
+github.com/janelia-flyem/dvid/server.init.2.func2()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:142 +0x276
+created by github.com/janelia-flyem/dvid/server.init.2
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server.go:152 +0x229
+
+goroutine 24 [select, 1 minutes]:
+github.com/janelia-flyem/go/profiler.init.1.func1()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/profiler/web_endpoints.go:59 +0x462
+created by github.com/janelia-flyem/go/profiler.init.1
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/go/profiler/web_endpoints.go:93 +0x8b
+
+goroutine 25 [chan receive, 1 minutes]:
+main.DoServe.func1(0xc820084720)
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:211 +0x72
+created by main.DoServe
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:230 +0x74
+
+goroutine 26 [select, 1 minutes, locked to thread]:
+runtime.gopark(0xe52650, 0xc82003e728, 0xcd9600, 0x6, 0x18, 0x2)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/proc.go:262 +0x163
+runtime.selectgoImpl(0xc82003e728, 0x0, 0x18)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/select.go:392 +0xa67
+runtime.selectgo(0xc82003e728)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/select.go:215 +0x12
+runtime.ensureSigM.func1()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/signal1_unix.go:279 +0x358
+runtime.goexit()
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/asm_amd64.s:1998 +0x1
+
+goroutine 5 [IO wait, 1 minutes]:
+net.runtime_pollWait(0x7f3eb26cc3b8, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820013720, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820013720, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc8200136c0, 0x0, 0x7f3eb26cc4b0, 0xc820010ee0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc82009e890, 0x4d8a11, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net/http.tcpKeepAliveListener.Accept(0xc82009e890, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2427 +0x41
+net/http.(*Server).Serve(0xc8200ae580, 0x7f3eb26cc478, 0xc82009e890, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2117 +0x129
+net/http.(*Server).ListenAndServe(0xc8200ae580, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2098 +0x136
+net/http.ListenAndServe(0xcd15a0, 0x5, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2195 +0x98
+created by main.DoServe
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/cmd/dvid/main.go:260 +0x761
+
+goroutine 6 [IO wait, 1 minutes]:
+net.runtime_pollWait(0x7f3eb26cc238, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc8202325a0, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc8202325a0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc820232540, 0x0, 0x7f3eb26cc4b0, 0xc82010c300)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc820242010, 0x459500, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net/http.tcpKeepAliveListener.Accept(0xc820242010, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2427 +0x41
+net/http.(*Server).Serve(0xc820238100, 0x7f3eb26cc478, 0xc820242010, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2117 +0x129
+net/http.(*Server).ListenAndServe(0xc820238100, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2098 +0x136
+github.com/janelia-flyem/dvid/server.serveHTTP()
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/web.go:415 +0x30a
+created by github.com/janelia-flyem/dvid/server.Serve
+	/lhome/yy/work/mouselight/gospace/src/github.com/janelia-flyem/dvid/server/server_local.go:256 +0x58d
+
+goroutine 7 [select]:
+github.com/valyala/gorpc.serverHandler(0xc8202080e0, 0xc820020180)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:200 +0x496
+created by github.com/valyala/gorpc.(*Server).Start
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:158 +0x5ae
+
+goroutine 12 [IO wait, 1 minutes]:
+net.runtime_pollWait(0x7f3eb26cc178, 0x72, 0xc82049a000)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820258140, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820258140, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).Read(0xc8202580e0, 0xc82049a000, 0x1000, 0x1000, 0x0, 0x7f3eb26c0028, 0xc8200880a0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:250 +0x23a
+net.(*conn).Read(0xc820044028, 0xc82049a000, 0x1000, 0x1000, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/net.go:172 +0xe4
+net/http.(*connReader).Read(0xc82010c320, 0xc82049a000, 0x1000, 0x1000, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:526 +0x196
+bufio.(*Reader).fill(0xc8200204e0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:97 +0x1e9
+bufio.(*Reader).ReadSlice(0xc8200204e0, 0xa, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:328 +0x21a
+bufio.(*Reader).ReadLine(0xc8200204e0, 0x0, 0x0, 0x0, 0xc94f00, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:357 +0x53
+net/textproto.(*Reader).readLineSlice(0xc8200bc7e0, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/textproto/reader.go:55 +0x81
+net/textproto.(*Reader).ReadLine(0xc8200bc7e0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/textproto/reader.go:36 +0x40
+net/http.readRequest(0xc8200204e0, 0xe52000, 0xc8204b0000, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/request.go:721 +0xb6
+net/http.(*conn).readRequest(0xc820022280, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:705 +0x359
+net/http.(*conn).serve(0xc820022280)
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:1425 +0x947
+created by net/http.(*Server).Serve
+	/lhome/yy/work/mouselight/gospace/go/src/net/http/server.go:2137 +0x44e
+
+goroutine 130 [select]:
+github.com/valyala/gorpc.serverHandleConnection(0xc8202080e0, 0x7f3eb26611b8, 0xc820242008, 0xc82128e050, 0xf, 0xc820020180)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:277 +0x914
+created by github.com/valyala/gorpc.serverHandler
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:221 +0x468
+
+goroutine 102 [IO wait]:
+net.runtime_pollWait(0x7f3eb26cc0b8, 0x72, 0xc8204b2000)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820232220, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820232220, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).Read(0xc8202321c0, 0xc8204b2000, 0x10000, 0x10000, 0x0, 0x7f3eb26c0028, 0xc8200880a0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:250 +0x23a
+net.(*conn).Read(0xc820242008, 0xc8204b2000, 0x10000, 0x10000, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/net.go:172 +0xe4
+github.com/valyala/gorpc.(*readerCounter).Read(0xc8200f4ca0, 0xc8204b2000, 0x10000, 0x10000, 0xa53be0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/conn_stats.go:118 +0x74
+bufio.(*Reader).fill(0xc8202c8060)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:97 +0x1e9
+bufio.(*Reader).ReadByte(0xc8202c8060, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:229 +0x7a
+compress/flate.(*decompressor).moreBits(0xc821261200, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:719 +0x4d
+compress/flate.(*decompressor).nextBlock(0xc821261200)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:314 +0x20e
+compress/flate.(*decompressor).Read(0xc821261200, 0xc8204c2000, 0x10000, 0x10000, 0xc8201b0ae0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/compress/flate/inflate.go:355 +0x1ae
+bufio.(*Reader).fill(0xc8202c80c0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:97 +0x1e9
+bufio.(*Reader).Read(0xc8202c80c0, 0xc82128e060, 0x1, 0x9, 0xa7f3e0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/bufio/bufio.go:207 +0x260
+io.ReadAtLeast(0x7f3eb261d028, 0xc8202c80c0, 0xc82128e060, 0x1, 0x9, 0x1, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/io/io.go:297 +0xe6
+io.ReadFull(0x7f3eb261d028, 0xc8202c80c0, 0xc82128e060, 0x1, 0x9, 0xc800000000, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/io/io.go:315 +0x62
+encoding/gob.decodeUintReader(0x7f3eb261d028, 0xc8202c80c0, 0xc82128e060, 0x9, 0x9, 0x0, 0x1, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decode.go:119 +0x92
+encoding/gob.(*Decoder).recvMessage(0xc8200ae080, 0xc82129dc30)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:76 +0x5e
+encoding/gob.(*Decoder).decodeTypeSequence(0xc8200ae080, 0xe52700, 0xc8200ae080)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:140 +0x47
+encoding/gob.(*Decoder).DecodeValue(0xc8200ae080, 0xa53e20, 0xc8200f4ce0, 0x16, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:208 +0x15d
+encoding/gob.(*Decoder).Decode(0xc8200ae080, 0xa53e20, 0xc8200f4ce0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/encoding/gob/decoder.go:185 +0x289
+github.com/valyala/gorpc.(*messageDecoder).Decode(0xc8200f4cc0, 0xa53e20, 0xc8200f4ce0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/encoding.go:100 +0x44
+github.com/valyala/gorpc.serverReader(0xc8202080e0, 0x7f3eb27028f8, 0xc820242008, 0xc82128e050, 0xf, 0xc8200848a0, 0xc820084900, 0xc820084960, 0x1, 0xc820020180)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:336 +0x144
+created by github.com/valyala/gorpc.serverHandleConnection
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:272 +0x636
+
+goroutine 131 [IO wait]:
+net.runtime_pollWait(0x7f3eb26cc2f8, 0x72, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/runtime/netpoll.go:160 +0x60
+net.(*pollDesc).Wait(0xc820258060, 0x72, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:73 +0x3a
+net.(*pollDesc).WaitRead(0xc820258060, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_poll_runtime.go:78 +0x36
+net.(*netFD).accept(0xc820258000, 0x0, 0x7f3eb26cc4b0, 0xc8200f4c80)
+	/lhome/yy/work/mouselight/gospace/go/src/net/fd_unix.go:426 +0x27c
+net.(*TCPListener).AcceptTCP(0xc820044020, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:254 +0x4d
+net.(*TCPListener).Accept(0xc820044020, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/go/src/net/tcpsock_posix.go:264 +0x3d
+github.com/valyala/gorpc.(*defaultListener).Accept(0xc82000e200, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/transport.go:74 +0x7a
+github.com/valyala/gorpc.serverHandler.func1(0xc82000e3f0, 0xc82000e400, 0xc82000e410, 0xc8202080e0, 0xc82000e420, 0xc8202c8000)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:192 +0x4d
+created by github.com/valyala/gorpc.serverHandler
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:198 +0x142
+
+goroutine 103 [select]:
+github.com/valyala/gorpc.serverWriter(0xc8202080e0, 0x7f3eb2702920, 0xc820242008, 0xc82128e050, 0xf, 0xc8200848a0, 0xc820084900, 0xc8200849c0, 0x1)
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:432 +0x8ca
+created by github.com/valyala/gorpc.serverHandleConnection
+	/lhome/yy/work/mouselight/gospace/src/github.com/valyala/gorpc/server.go:275 +0x704
+Sending log messages to: /lhome/yy/work/mouselight/dvidspace/config/august4.log
