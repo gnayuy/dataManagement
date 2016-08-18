@@ -34,10 +34,6 @@ using namespace std;
 #endif
 
 //
-#include "json.hpp"
-using nlohmann::json;
-
-//
 #include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
 
