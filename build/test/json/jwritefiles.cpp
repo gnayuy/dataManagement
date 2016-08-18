@@ -9,10 +9,109 @@
 using namespace boost::filesystem;
 
 //
+void printJSONValue(json::value v, string indent, bool isArray)
+{
+    string indented=indent;
+
+    //
+    if(isArray)
+    {
+        cout << indent << "[" <<endl;
+    }
+    else
+    {
+        cout << indent << "{" <<endl;
+    }
+
+    //
+    if (!v.is_null())
+    {
+        indented.append("    ");
+
+        //
+        if(isArray)
+        {
+            for (auto &value : v.as_array())
+            {
+                if (value.is_object() || value.is_array())
+                {
+                    printJSONValue(value, indented, value.is_array());
+                }
+                else
+                {
+                    //
+                    if(value.is_double())
+                    {
+                        cout.precision(numeric_limits<double>::digits10 + 1);
+                        cout << value.as_double();
+                    }
+                    else if(v.is_integer())
+                    {
+                         cout << value.as_integer();
+                    }
+                    else
+                    {
+                        ucout << value.serialize();
+                    }
+                    cout << endl;
+                }
+            }
+        }
+        else
+        {
+            for (auto iter = std::begin(v.as_object()); iter != std::end(v.as_object()); ++iter)
+            {
+                //
+                auto key = iter->first;
+                auto& value = iter->second;
+
+                if (value.is_object() || value.is_array())
+                {
+                    ucout << indented << key << U(" : ") << endl;
+                    printJSONValue(value, indented, value.is_array());
+                }
+                else
+                {
+                    //
+                    ucout << indented << key << U(" : ");
+
+                    if(value.is_double())
+                    {
+                        cout.precision(numeric_limits<double>::digits10 + 1);
+                        cout << value.as_double();
+                    }
+                    else if(v.is_integer())
+                    {
+                         cout << value.as_integer();
+                    }
+                    else
+                    {
+                        ucout << value.serialize();
+                    }
+                    cout << endl;
+                }
+            }
+        }
+
+
+    }
+
+    //
+    if(isArray)
+    {
+        cout << indent << "]" <<endl;
+    }
+    else
+    {
+        cout << indent << "}" <<endl;
+    }
+}
+
+//
 int main(int argc, char* argv[])
 {
     //
-    json j;
+    json::value j;
     
     //
     if(argc<3)
@@ -25,14 +124,14 @@ int main(int argc, char* argv[])
     std::ifstream input(argv[1]);
     string name(argv[2]);
     
-    j["name"] = name;
+    j[U("name")] = json::value(name);
     
-    json::array_t ja;
-    json::object_t jo;
+    json::value ja;
+    json::value jo;
     
     //
     string line;
-    int i=0,n=0;
+    int i=0,n=0,count;
     if (input.is_open())
     {
         while( getline (input,line) )
@@ -50,22 +149,22 @@ int main(int argc, char* argv[])
                 string octree_path = parent_path.substr(parent_path.find(name) + name.length() + 1);
                 
                 std::stringstream ss;
-                ss << std::setw( 9 ) << std::setfill( '0' ) << (n++)/2;
+                count = (n++)/2;
+                ss << setw( 9 ) << setfill( '0' ) << count;
                 string id = ss.str();
                 
                 if((i++)%2==0)
                 {
-                    jo["uuid"] = id;
-                    jo["octreepath"] = octree_path;
-                    jo["ch1"] = line;
+                    jo[U("uuid")] = json::value(id);
+                    jo[U("octreepath")] = json::value(octree_path);
+                    jo[U("ch1")] = json::value(line);
                 }
                 else
                 {
-                    jo["ch2"] = line;
+                    jo[U("ch2")] = json::value(line);
                     
-                    //std::cout<< i << " "<< std::setw(4) << jo <<std::endl;
-                    
-                    ja.push_back(jo);
+                    //
+                    ja[count] = jo;
                 }
                 
                 
@@ -79,11 +178,13 @@ int main(int argc, char* argv[])
     }
     
     //
-    //std::cout<< std::setw(4) << ja <<std::endl;
-    
+    j[U("tile")] = ja;
+
     //
-    j["tile"] = ja;
-    std::cout<<j.dump(4)<<std::endl;
+    //cout<<j.serialize()<<endl;
+
+    //
+    printJSONValue(j, "", j.is_array());
     
     //
     return 0;
