@@ -1,11 +1,7 @@
 // test write tiles to json file
 // Yang Yu (gnayuy@gmail.com)
 
-// g++ -std=c++11 -o jwritefiles jwritefiles.cpp -lboost_filesystem -lboost_system
-
-
-#include "json.hpp"
-using nlohmann::json;
+// g++ -std=c++11 -o jwritefiles jwritefiles.cpp -L/usr/local/lib -lcpprest -lboost_filesystem -lboost_system -lboost_chrono -lboost_thread -lboost_random -lboost_regex -lssl -lcrypto
 
 #include "metainfo.h"
 
