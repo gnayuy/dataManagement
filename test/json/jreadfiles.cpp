@@ -1,10 +1,7 @@
 // test read tiles from json file
 // Yang Yu (gnayuy@gmail.com)
 
-//g++ -std=c++11 -o jreadfiles jreadfiles.cpp
-
-#include "json.hpp"
-using nlohmann::json;
+//g++ -std=c++11 -o jreadfiles jreadfiles.cpp -L/usr/local/lib -lcpprest -lboost_system -lboost_chrono -lboost_thread -lboost_random -lboost_regex -lssl -lcrypto
 
 #include "metainfo.h"
 
@@ -20,21 +17,19 @@ int main(int argc, char* argv[])
     std::ifstream f(argv[1]);
     
     //
-    json j;
-    
-    j << f;
+    json::value j = json::value::parse(f);
     
     //
     tileList files;
-    json ja = j["tile"];
+    json::value ja = j[U("tile")];
     
-    for(json::iterator it=ja.begin(); it<ja.end(); it++)
+    for(auto val : ja.as_array())
     {
         Tile fl;
-        fl.uuid = (*it)["uuid"];
-        fl.ch1 = (*it)["ch1"];
-        fl.ch2 = (*it)["ch2"];
-        fl.octreepath = (*it)["octreepath"];
+        fl.uuid = val[U("uuid")].as_string();
+        fl.ch1 = val[U("ch1")].as_string();
+        fl.ch2 = val[U("ch2")].as_string();
+        fl.octreepath = val[U("octreepath")].as_string();
         
         files.push_back(fl);
     }
@@ -45,8 +40,6 @@ int main(int argc, char* argv[])
     Tile fl = files[0];
     
     cout<<fl.octreepath<<" "<<fl.ch1<<endl;
-    
-    
     
     //
     return 0;
