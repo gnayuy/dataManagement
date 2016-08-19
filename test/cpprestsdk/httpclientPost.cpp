@@ -34,6 +34,7 @@ using namespace concurrency::streams;       // Asynchronous streams
 
 // POST <api URL>/node/<UUID>/<data name>/key/<key>
 // curl -X POST -d @data/mouselight_2015_07_11_johan.json http://localhost:8000/api/node/cd0/metadata/key/test1 --header "Content-Type:application/json"
+// echo '{"text": "Hello **world**!"}' | curl -d @- http://localhost:8000/api/node/cd0/metadata/key/test2 --header "Content-Type:application/json"
 
 //
 int main(int argc, char* argv[])
