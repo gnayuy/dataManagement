@@ -62,14 +62,14 @@ int main(int argc, char* argv[])
 
     //auto response = client.request(methods::POST, j.serialize().c_str()).get();
     try
-            {
-                auto response = client.request(msg).get();
-                printf("Response code:%d\n", response.status_code());               
-            }
-            catch(http_exception& e)
-            {
-                printf("Exception:%s\n", e.what());                
-            } 
+    {
+        auto response = client.request(msg).get();
+        printf("Response code:%d\n", response.status_code());               
+    }
+    catch(http_exception& e)
+    {
+        printf("Exception:%s\n", e.what());                
+    } 
 
     
     //
