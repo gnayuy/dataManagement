@@ -32,6 +32,9 @@ using namespace concurrency::streams;       // Asynchronous streams
 //using namespace web::experimental::web_sockets::client;     // WebSockets client
 //using namespace web::json;                                  // JSON library
 
+// POST <api URL>/node/<UUID>/<data name>/key/<key>
+// curl -X POST -d @data/mouselight_2015_07_11_johan.json http://localhost:8000/api/node/cd0/metadata/key/test1 --header "Content-Type:application/json"
+
 //
 int main(int argc, char* argv[])
 {
