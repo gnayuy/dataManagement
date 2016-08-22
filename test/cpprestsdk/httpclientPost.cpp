@@ -44,9 +44,10 @@ int main(int argc, char* argv[])
     address.append(port);
 
     http::uri uri = http::uri(address);
-    http_client client(http::uri_builder(uri).append_path(U("/api/node/cd0/metadata/key/keytest")).to_uri());
+    http::uri_builder builder(uri);
+    http_client client(builder.append_path(U("/api/node/cd0/metadata/key/keytest")).to_uri());
     
-    http_request msg(methods::POST);
+    
 
 //    json::value j = json::value::array();
 //    j[0] = 1;
@@ -54,23 +55,34 @@ int main(int argc, char* argv[])
 
     json::value j;
 
-    j[U("name")] = json::value(U("Test"));
+    j[U("name")] = json::value(U("John"));
+    j[U("age")] = json::value(U("66"));
     cout<<j.serialize()<<endl;
-
-    msg.headers().add(U("MyHeader"), U("hehe;blach"));
-    msg.headers().add(U("Yo1"), U("You, Too"));
-    msg.headers().add(U("Yo2"), U("You2"));
-
-    //auto response = client.request(methods::POST, j.serialize().c_str()).get();
+    
     try
     {
-        auto response = client.request(msg).get();
-        printf("Response code:%d\n", response.status_code());               
+        auto response = client.request(methods::POST, builder.to_string(), j.serialize(), U("application/json")).get();
+        printf("Response code:%d\n", response.status_code());
     }
     catch(http_exception& e)
     {
-        printf("Exception:%s\n", e.what());                
-    } 
+        printf("Exception:%s\n", e.what());
+    }
+
+//    http_request msg(methods::POST);
+//    msg.headers().add(U("MyHeader"), U("hehe;blach"));
+//    msg.headers().add(U("Yo1"), U("You, Too"));
+//    msg.headers().add(U("Yo2"), U("You2"));
+//
+//    try
+//    {
+//        auto response = client.request(msg).get();
+//        printf("Response code:%d\n", response.status_code());               
+//    }
+//    catch(http_exception& e)
+//    {
+//        printf("Exception:%s\n", e.what());                
+//    } 
 
     
     //
