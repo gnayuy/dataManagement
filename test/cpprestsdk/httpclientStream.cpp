@@ -1,7 +1,7 @@
 // test rest api using cpprestsdk
 // Yang Yu (gnayuy@gmail.com)
 
-// g++ -std=c++11 -I/usr/local/include -o httpclientDataStream httpclientDataStream.cpp -L/usr/local/lib -lcpprest -lboost_system -lboost_chrono -lboost_thread -lboost_random -lboost_regex -lssl -lcrypto
+// g++ -std=c++11 -I/usr/local/include -o httpclientStream httpclientStream.cpp -L/usr/local/lib -lcpprest -lboost_system -lboost_chrono -lboost_thread -lboost_random -lboost_regex -lssl -lcrypto
 
 
 //
@@ -34,6 +34,61 @@ using namespace concurrency::streams;       // Asynchronous streams
 //using namespace web::json;                                  // JSON library
 
 // POST <api URL>/node/<UUID>/<data name>/raw/0_1_2/<size>/<offset>[?queryopts]
+// http://localhost:8000/api/node/345/grayscale/raw/0_1/128_128/0_0_0/jpg:80
+
+pplx::task<void> HTTPGetAsync(http_client client, uri_builder builder)
+{
+    auto path_query_fragment = builder.to_string();
+
+    // Make an HTTP GET request and asynchronously process the response
+    return client.request(methods::GET, path_query_fragment).then([](http_response response)
+    {
+        // Display the status code that the server returned
+        std::wostringstream stream;
+        stream << U("Server returned returned status code ") << response.status_code() << U('.') << std::endl;
+        std::wcout << stream.str();
+
+        stream.str(std::wstring());
+        stream << U("Content length: ") << response.headers().content_length() << U(" bytes") << std::endl;
+        stream << U("Content type: ") << response.headers().content_type().c_str() << std::endl;
+        std::wcout << stream.str();
+
+        auto bodyStream = response.body();
+        concurrency::streams::stringstreambuf sbuffer;
+        auto& target = sbuffer.collection();
+
+        bodyStream.read_to_end(sbuffer).get();
+
+        stream.str(std::wstring());
+        stream << U("Response body: ") << target.c_str();
+        std::wcout << stream.str();
+    });
+}
+
+pplx::task<void> HTTPPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size)
+{
+    auto path_query_fragment = builder.to_string();
+
+    http_request msg(methods::POST);
+    msg.set_request_uri(path_query_fragment);
+    msg.set_body(isbuf, size, U("application/octet-stream"));
+
+    // Make an HTTP POST request and asynchronously process the response
+    return client.request(msg, pplx::cancellation_token::none()).then([](http_response response)
+    {
+        // Display the status code that the server returned
+        std::wostringstream stream;
+        stream << U("Server returned returned status code ") << response.status_code() << U('.') << std::endl;
+        std::wcout << stream.str();
+
+        stream.str(std::wstring());
+        stream << U("Content length: ") << response.headers().content_length() << U(" bytes") << std::endl;
+        stream << U("Content type: ") << response.headers().content_type().c_str() << std::endl;
+        std::wcout << stream.str();
+
+    });
+}
+
 
 //
 int main(int argc, char* argv[])
@@ -43,8 +98,9 @@ int main(int argc, char* argv[])
     address.append(port);
 
     http::uri uri = http::uri(address);
-    http::uri_builder builder(uri);
-    http_client client(builder.append_path(U("/api/node/cd0/grayscale/raw/0_1_2/32_32_32/0_0_0")).to_uri());
+    http_client client(uri);
+    http::uri_builder builder(U("/api/node/61c/grayscale/raw/0_1_2/32_32_32/0_0_0"));
+    //http_client client(builder.append_path(U("/api/node/4ab/grayscale/raw/0_1_2/32_32_32/0_0_0")).to_uri());
     
     if(argc<2)
     {
@@ -59,7 +115,7 @@ int main(int argc, char* argv[])
         unsigned char *buf = NULL;
         try
         {
-            const size_t size = 32*32*32;
+            utility::size64_t size = 32768; //32*32*32
             buf = new unsigned char [size];
 
             for(int i=0; i<size; i++)
@@ -67,25 +123,40 @@ int main(int argc, char* argv[])
                 buf[i] = i%255;
             }
 
-            cout<<"test raw buffer"<<endl;
             rawptr_buffer<unsigned char> rawBuf(buf, size, std::ios::in);
-            cout<<"success raw buffer"<<rawBuf.size()<<endl;
+            cout<<"success raw buffer with size: "<<rawBuf.size()<<endl;
 
-//            concurrency::streams::istream isbuf;
+            concurrency::streams::istream isbuf(rawBuf);
 
-//            isbuf.read(rawBuf,size);
-//            cout<<"success read rawbuf to istream"<<endl;
 
-            try
-            {
-                //auto response = client.request(methods::POST, builder.to_string(), isbuf, size, U("application/octet-stream"), pplx::cancellation_token::none()).get();
-                auto response = client.request(methods::POST, builder.to_string(), rawBuf, U("application/octet-stream")).get();
-                printf("Response code:%d\n", response.status_code());
-            }
-            catch(http_exception& e)
-            {
-                printf("Exception:%s\n", e.what());
-            }
+
+            auto path_query_fragment = builder.to_string();
+
+            cout<<"test "<<path_query_fragment.c_str()<<endl;
+
+            HTTPPostAsync(client, builder, isbuf, size).wait();
+
+//            try
+//            {
+//                auto response = client.request(methods::POST, path_query_fragment, isbuf).get();
+//                printf("Response code:%d\n", response.status_code());
+//            }
+//            catch(http_exception& e)
+//            {
+//                printf("Exception:%s\n", e.what());
+//            }
+
+            //            const size_t rawDataSize = 8;
+            //            unsigned char* rawData = new unsigned char[rawDataSize];
+            //            memcpy(&rawData[0], "raw data", rawDataSize);
+            //            rawptr_buffer<unsigned char> rawOutBuffer(rawData, rawDataSize, std::ios::in);
+            //            concurrency::streams::ostream outStream;
+            //            outStream.write(rawOutBuffer, rawDataSize).then([rawData](size_t bytesWritten)
+            //            {
+            //                delete []rawData;
+
+            //                // Perform actions here once the string as been written...
+            //            });
         }
         catch(...)
         {
@@ -93,44 +164,49 @@ int main(int argc, char* argv[])
             return -1;
         }
 
+        //
+        //        if(buf) {delete []buf; buf=NULL;}
+
     }
     else if(method==1)
     {
 
-        client.request(methods::GET).then([](http_response response)
-        {
-            if(response.status_code() != status_codes::OK)
-            {
-                // Handle error cases...
-                return pplx::task_from_result();
-            }
+        HTTPGetAsync(client, builder).wait();
 
-            // Perform actions here reading from the response stream...
-            // In this example, we print the first 15 characters of the response to the console.
-            concurrency::streams::istream bodyStream = response.body();
-            container_buffer<std::string> inStringBuffer;
-            bodyStream.read(inStringBuffer, 15).then([inStringBuffer](size_t bytesRead)
-            {
-                const std::string &text = inStringBuffer.collection();
+        //        client.request(methods::GET).then([](http_response response)
+        //        {
+        //            if(response.status_code() != status_codes::OK)
+        //            {
+        //                // Handle error cases...
+        //                return pplx::task_from_result();
+        //            }
 
-                // For demonstration, convert the response text to a wide-character string.
-                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-                std::wostringstream ss;
-                ss << utf16conv.from_bytes(text.c_str()) << std::endl;
-                std::wcout << ss.str();
-            });
-        });
+        //            // Perform actions here reading from the response stream...
+        //            // In this example, we print the first 15 characters of the response to the console.
+        //            concurrency::streams::istream bodyStream = response.body();
+        //            container_buffer<std::string> inStringBuffer;
+        //            bodyStream.read(inStringBuffer, 15).then([inStringBuffer](size_t bytesRead)
+        //            {
+        //                const std::string &text = inStringBuffer.collection();
+
+        //                // For demonstration, convert the response text to a wide-character string.
+        //                std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+        //                std::wostringstream ss;
+        //                ss << utf16conv.from_bytes(text.c_str()) << std::endl;
+        //                std::wcout << ss.str();
+        //            });
+        //        });
 
 
-//        try
-//        {
-//            auto response = client.request(methods::GET, builder.to_string(), buf, U("application/octet-stream")).get();
-//            printf("Response code:%d, buf[8]=%d\n", response.status_code(), buf[8]);
-//        }
-//        catch(http_exception& e)
-//        {
-//            printf("Exception:%s\n", e.what());
-//        }
+        //        try
+        //        {
+        //            auto response = client.request(methods::GET, builder.to_string(), buf, U("application/octet-stream")).get();
+        //            printf("Response code:%d, buf[8]=%d\n", response.status_code(), buf[8]);
+        //        }
+        //        catch(http_exception& e)
+        //        {
+        //            printf("Exception:%s\n", e.what());
+        //        }
     }
     else
     {
