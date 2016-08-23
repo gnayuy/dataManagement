@@ -19,12 +19,14 @@ public:
     void setOrigin(double x, double y, double z);
     void setDimension(long x, long  y, long z);
     void setResolution(double x, double y, double z);
+
+    void upstreaming(unsigned char *buffer, long offx, long offy, long offz);
     
 public:
     unsigned char *p;
-    double ox,oy,oz;
-    double vx,vy,vz;
-    long dimx,dimy,dimz;
+    double ox,oy,oz; // origin
+    double vx,vy,vz; // voxelsize
+    long dimx,dimy,dimz; // dimension
 };
 
 #endif // __DATAMANAGEMENT_H__
