@@ -66,6 +66,11 @@
 
  	Returns JSON of all possible datatypes for this server, i.e., the list of compiled datatypes.
 
+ GET  /api/server/groupcache
+
+ 	Returns JSON for groupcache statistics for this server.  See github.com/golang/groupcache package
+	Stats and CacheStats for MainCache and HotCache.
+
 POST  /api/server/settings
 
 	Sets server parameters.  Expects JSON to be posted with optional keys denoting parameters:
@@ -258,7 +263,7 @@ Node-Level REST endpoints
 		<p>This server has compiled in the following data types, each of which have a HTTP API.
 		   Click on the links below to explore each data type's command line and HTTP API.</p>
 
-		<ul><li><a href="http://localhost:8000/api/help/imagetile">imagetile</a></li><li><a href="http://localhost:8000/api/help/googlevoxels">googlevoxels</a></li><li><a href="http://localhost:8000/api/help/labelvol">labelvol</a></li><li><a href="http://localhost:8000/api/help/annotation">annotation</a></li><li><a href="http://localhost:8000/api/help/keyvalue">keyvalue</a></li><li><a href="http://localhost:8000/api/help/labelgraph">labelgraph</a></li><li><a href="http://localhost:8000/api/help/roi">roi</a></li><li><a href="http://localhost:8000/api/help/rgba8blk">rgba8blk</a></li><li><a href="http://localhost:8000/api/help/uint8blk">uint8blk</a></li><li><a href="http://localhost:8000/api/help/labelblk">labelblk</a></li><li><a href="http://localhost:8000/api/help/multichan16">multichan16</a></li></ul>
+		<ul><li><a href="http://localhost:8000/api/help/labelgraph">labelgraph</a></li><li><a href="http://localhost:8000/api/help/roi">roi</a></li><li><a href="http://localhost:8000/api/help/rgba8blk">rgba8blk</a></li><li><a href="http://localhost:8000/api/help/annotation">annotation</a></li><li><a href="http://localhost:8000/api/help/imagetile">imagetile</a></li><li><a href="http://localhost:8000/api/help/googlevoxels">googlevoxels</a></li><li><a href="http://localhost:8000/api/help/multichan16">multichan16</a></li><li><a href="http://localhost:8000/api/help/uint8blk">uint8blk</a></li><li><a href="http://localhost:8000/api/help/labelblk">labelblk</a></li><li><a href="http://localhost:8000/api/help/labelvol">labelvol</a></li><li><a href="http://localhost:8000/api/help/keyvalue">keyvalue</a></li><li><a href="http://localhost:8000/api/help/labelsz">labelsz</a></li></ul>
 
 		<p>Background batch processes like generation of tiles, sparse volumes, and various
 		   indices, will be paused if a single server receives more than a few data type API r

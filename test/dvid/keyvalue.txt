@@ -1,0 +1,102 @@
+
+API for 'keyvalue' datatype (github.com/janelia-flyem/dvid/datatype/keyvalue)
+=============================================================================
+
+Command-line:
+
+$ dvid repo <UUID> new keyvalue <data name> <settings...>
+
+	Adds newly named key-value data to repo with specified UUID.
+
+	Example:
+
+	$ dvid repo 3f8c new keyvalue stuff
+
+    Arguments:
+
+    UUID           Hexidecimal string with enough characters to uniquely identify a version node.
+    data name      Name of data to create, e.g., "myblobs"
+    settings       Configuration settings in "key=value" format separated by spaces.
+
+    Configuration Settings (case-insensitive keys):
+
+    Versioned      Set to "false" or "0" if the keyvalue instance is unversioned (repo-wide).
+                   An unversioned keyvalue will only use the UUIDs to look up the repo and
+                   not differentiate between versions in the same repo.  Note that unlike
+                   versioned data, distribution (push/pull) of unversioned data is not defined 
+                   at this time.
+
+$ dvid -stdin node <UUID> <data name> put <key> < data
+
+	Puts stdin data into the keyvalue data instance under the given key.
+
+	
+    ------------------
+
+HTTP API (Level 2 REST):
+
+Note that browsers support HTTP PUT and DELETE via javascript but only GET/POST are
+included in HTML specs.  For ease of use in constructing clients, HTTP POST is used
+to create or modify resources in an idempotent fashion.
+
+GET  <api URL>/node/<UUID>/<data name>/help
+
+	Returns data-specific help message.
+
+
+GET  <api URL>/node/<UUID>/<data name>/info
+POST <api URL>/node/<UUID>/<data name>/info
+
+    Retrieves or puts data properties.
+
+    Example: 
+
+    GET <api URL>/node/3f8c/stuff/info
+
+    Returns JSON with configuration settings.
+
+    Arguments:
+
+    UUID          Hexidecimal string with enough characters to uniquely identify a version node.
+    data name     Name of keyvalue data instance.
+
+GET  <api URL>/node/<UUID>/<data name>/keys
+
+	Returns all keys for this data instance in JSON format:
+
+	[key1, key2, ...]
+
+GET  <api URL>/node/<UUID>/<data name>/keyrange/<key1>/<key2>
+
+	Returns all keys between 'key1' and 'key2' for this data instance in JSON format:
+
+	[key1, key2, ...]
+
+    Arguments:
+
+    UUID          Hexidecimal string with enough characters to uniquely identify a version node.
+    data name     Name of keyvalue data instance.
+    key1          First alphanumeric key in range.
+    key2          Last alphanumeric key in range.
+
+GET  <api URL>/node/<UUID>/<data name>/key/<key>
+POST <api URL>/node/<UUID>/<data name>/key/<key>
+DEL  <api URL>/node/<UUID>/<data name>/key/<key> 
+
+    Performs operations on a key-value pair depending on the HTTP verb.  
+
+    Example: 
+
+    GET <api URL>/node/3f8c/stuff/key/myfile.dat
+
+    Returns the data associated with the key "myfile.dat" of instance "stuff" in version
+    node 3f8c.
+
+    The "Content-type" of the HTTP response (and usually the request) are
+    "application/octet-stream" for arbitrary binary data.
+
+    Arguments:
+
+    UUID          Hexidecimal string with enough characters to uniquely identify a version node.
+    data name     Name of keyvalue data instance.
+    key           An alphanumeric key.
