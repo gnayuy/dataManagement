@@ -1,2 +1,4 @@
 src
 test/json
+test/octree
+test/cpprestsdk

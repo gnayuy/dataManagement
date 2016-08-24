@@ -55,6 +55,41 @@ void DataManager::upstreaming(unsigned char *buffer, long offx, long offy, long 
 
 }
 
+pplx::task<void> DataManager::httpPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size)
+{
+    auto path_query_fragment = builder.to_string();
+
+    // Make an HTTP GET request and asynchronously process the response
+    return client.request(methods::GET, path_query_fragment).then([](http_response response)
+    {
+        // Display the status code that the server returned
+        std::wostringstream stream;
+        stream << U("Server returned returned status code ") << response.status_code() << U('.') << std::endl;
+        std::wcout << stream.str();
+
+        stream.str(std::wstring());
+        stream << U("Content length: ") << response.headers().content_length() << U(" bytes") << std::endl;
+        stream << U("Content type: ") << response.headers().content_type().c_str() << std::endl;
+        std::wcout << stream.str();
+
+        auto bodyStream = response.body();
+        concurrency::streams::stringstreambuf sbuffer;
+        auto& target = sbuffer.collection();
+
+        bodyStream.read_to_end(sbuffer).get();
+
+        stream.str(std::wstring());
+        stream << U("Response body: ") << target.c_str();
+        std::wcout << stream.str();
+    });
+}
+
+int DataManager::putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName)
+{
+    //
+    return 0;
+}
+
 // CLI
 DEFINE_string(tiles, "", "a json file of the tile list");
 DEFINE_string(server, "", "server address (url:port)");
@@ -79,6 +114,43 @@ int main(int argc, char *argv[])
     string requestMethods = FLAGS_methods?"GET":"POST";
     //std::cout<<"methods: "<<std::boolalpha<<FLAGS_methods<<std::endl;
     std::cout<<"request methods: "<< requestMethods <<std::endl;
+
+    // tile list
+    if(requestMethods == "POST")
+    {
+        // load tiles info
+        tileListType tiles;
+
+        if(FLAGS_tiles.substr(FLAGS_tiles.find_last_of(".") + 1) == "json")
+        {
+            std::ifstream f(FLAGS_tiles);
+            json::value j = json::value::parse(f);
+
+            json::value ja = j[U("tile")];
+
+            for(auto val : ja.as_array())
+            {
+                Tile t;
+                t.uuid = val[U("uuid")].as_string();
+                t.ch1 = val[U("ch1")].as_string();
+                t.ch2 = val[U("ch2")].as_string();
+                t.octreepath = val[U("octreepath")].as_string();
+
+                tiles.push_back(t);
+            }
+        }
+        else
+        {
+            std::cout<<"Invalid tile list file!"<<endl;
+            return -1;
+        }
+    }
+    else
+    {
+        // GET
+    }
+
+
 
     //
     return 0;

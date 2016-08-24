@@ -11,3 +11,13 @@ test/json/jreadfiles.cpp
 test/json/jwrite.cpp
 test/json/jwritefiles.cpp
 test/json/metainfo.h
+test/cpprestsdk/basic-http-client.cpp
+test/cpprestsdk/httpclient.cpp
+test/cpprestsdk/httpclientPost.cpp
+test/cpprestsdk/httpclientStream.cpp
+test/json/jread.cpp
+test/json/jreadfiles.cpp
+test/json/jwrite.cpp
+test/json/jwritefiles.cpp
+test/json/metainfo.h
+test/octree/octreeoffset.cpp

@@ -233,7 +233,7 @@ public:
     string ch1, ch2, ch3;
 };
 
-typedef std::vector<Tile> tileList;
+typedef std::vector<Tile> tileListType;
 
 // tiff image
 class TiffIO

@@ -37,6 +37,8 @@ public:
 
 public:
     void upstreaming(unsigned char *buffer, long offx, long offy, long offz);
+    pplx::task<void> httpPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size);
+    int putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName);
 
 public:
     json::value m_tiles;
