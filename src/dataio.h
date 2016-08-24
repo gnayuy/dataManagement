@@ -231,6 +231,8 @@ public:
     string uuid;
     string octreepath;
     string ch1, ch2, ch3;
+    long offTileX, offTileY, offTileZ;
+    bool visited;
 };
 
 typedef std::vector<Tile> tileListType;

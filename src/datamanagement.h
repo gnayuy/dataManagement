@@ -36,12 +36,12 @@ public:
     ~DataManager();
 
 public:
-    void upstreaming(unsigned char *buffer, long offx, long offy, long offz);
+    int upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long size);
     pplx::task<void> httpPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size);
     int putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName);
-
-public:
-    json::value m_tiles;
+    int loadTile(unsigned char *p, string ch1, string ch2);
+    int findNode(tileListType tiles, long xoff, long yoff, long zoff);
+    void computeOffset(tileListType &tiles);
 };
 
 #endif // __DATAMANAGEMENT_H__

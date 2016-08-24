@@ -16,6 +16,7 @@ MetaInfo::~MetaInfo()
 // tile
 Tile::Tile()
 {
+    visited = false;
 }
 
 Tile::~Tile()
@@ -221,6 +222,24 @@ void TiffIO::close()
         TIFF* tif = (TIFF*)m_TiffImage;
         TIFFClose( tif );
         m_TiffImage = NULL;
+    }
+
+    if(m_Data)
+    {
+        if(m_DataType==UCHAR)
+        {
+            unsigned char *p = (unsigned char *)(m_Data);
+            del1dp<unsigned char>(p);
+        }
+        else if(m_DataType==USHORT)
+        {
+            unsigned short *p = (unsigned short *)(m_Data);
+            del1dp<unsigned short>(p);
+        }
+        else
+        {
+            // other data type
+        }
     }
     
     return;
