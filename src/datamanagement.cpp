@@ -55,15 +55,16 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
     if(buffer!=NULL)
     {
         bool hasData = false;
-        int val = 0;
         for(long i=0; i<size; i++)
         {
-            if(buffer[i]>val)
+            if(buffer[i]>0)
             {
                 hasData = true;
                 break;
             }
         }
+
+        cout<<(void *)buffer<<" "<<std::boolalpha<<hasData<<endl;
 
         if(hasData)
         {
@@ -178,12 +179,25 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                     new1dp<unsigned char>(buffer, sizeBuf);
                                 }
 
-                                long offset = (kk*tsz)*bufX*bufY + (jj*tsy)*bufX + ii*tsx;
-                                loadTile(buffer+offset, tiles[n].ch1, tiles[n].ch2);
+                                unsigned char *buf = buffer + (kk*tsz)*bufX*bufY + (jj*tsy)*bufX + ii*tsx;
+                                loadTile(buf, tiles[n].ch1, tiles[n].ch2);
                             }
 
                         }
                     }
+                }
+
+                if(buffer)
+                {
+                    for(long iter=0; iter<sizeBuf; iter++)
+                    {
+                        if(buffer[iter]>0)
+                        {
+                            cout<<"successful load the data"<<endl;
+                            break;
+                        }
+                    }
+
                 }
 
                 // upstreaming
@@ -236,7 +250,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     return 0;
 }
 
-int DataManager::loadTile(unsigned char *p, string ch1, string ch2)
+int DataManager::loadTile(unsigned char *&p, string ch1, string ch2)
 {
     // load ch1 and ch2
     TiffIO tiff1, tiff2;
