@@ -117,14 +117,14 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     // Least Common Multiple (dim, 32)
     long tsx = 640, tsy = 552, tsz = 204;
     long csx = 640, csy = 736, csz = 544;
-    long l1,l2,l3,l4,l5,l6;
+    long level1;
     long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx;
     long offTileX, offTileY, offTileZ, otx, oty, otz;
     long offChunkX, offChunkY, offChunkZ;
     long bufX, bufY, bufZ;
 
     //
-    l1 = 3;
+    level1 = 3; // pick branch 3
 
     bb_bx = 0;
     bb_by = 32*tsy;
@@ -175,11 +175,11 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
 
                                 if(buffer==NULL)
                                 {
-                                    //new1dp<unsigned char>(buffer, sizeBuf);
+                                    new1dp<unsigned char>(buffer, sizeBuf);
                                 }
 
                                 long offset = (kk*tsz)*bufX*bufY + (jj*tsy)*bufX + ii*tsx;
-                                // loadTile(buffer+offset, tiles[n].ch1, tils[n].ch2);
+                                loadTile(buffer+offset, tiles[n].ch1, tiles[n].ch2);
                             }
 
                         }
@@ -187,7 +187,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                 }
 
                 // upstreaming
-                //if(buffer!=NULL)
+                if(buffer!=NULL)
                 {
                     //
                     for(long ii=0; ii<4; ii++)
@@ -226,8 +226,8 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                     }
                 }
 
-                //
-
+                // dealloc buffer
+                del1dp<unsigned char>(buffer);
             }
         }
     }
