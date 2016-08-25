@@ -94,11 +94,6 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
                     {
                         unsigned char val = buffer[offy+i];
                         p[oy+i] = val;
-
-                        if(val>0)
-                        {
-                            hasData = true;
-                        }
                     }
                 }
             }
