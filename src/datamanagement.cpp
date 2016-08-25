@@ -510,12 +510,84 @@ void DataManager::computeOffset(tileListType &tiles)
     }
 }
 
+int DataManager::saveTile(unsigned char *p, string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType)
+{
+    TiffIO tif;
+
+    tif.setResX(vsx);
+    tif.setResY(vsy);
+    tif.setResZ(vsz);
+
+    tif.setDataType(dataType);
+    tif.setDimx(sx);
+    tif.setDimy(sy);
+    tif.setDimz(sz);
+    tif.setDimc(sc);
+    tif.setDimt(1);
+
+    tif.setData((void*)p);
+
+    if(!tif.canWriteFile(const_cast<char*>(outFileName.c_str())))
+    {
+        cout<<"Fail to write the TIFF image."<<endl;
+        return -1;
+    }
+    tif.write();
+    //
+    return 0;
+}
+
+pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder builder)
+{
+    return client.request(methods::GET).then([](http_response response)
+    {
+        if(response.status_code() != status_codes::OK)
+        {
+            // Handle error cases...
+            return pplx::task_from_result();
+        }
+
+        // Perform actions here reading from the response stream...
+        // In this example, we print the first 15 characters of the response to the console.
+        concurrency::streams::istream bodyStream = response.body();
+        container_buffer<std::string> inStringBuffer;
+        return bodyStream.read(inStringBuffer, 15).then([inStringBuffer](size_t bytesRead)
+        {
+            const std::string &text = inStringBuffer.collection();
+
+            // For demonstration, convert the response text to a wide-character string.
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+            std::wostringstream ss;
+            ss << utf16conv.from_bytes(text.c_str()) << std::endl;
+            std::wcout << ss.str();
+        });
+    });
+}
+
+int DataManager::getData(utility::string_t server, utility::string_t uuid, utility::string_t dataName, long xoff, long yoff, long zoff, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, string outFileName)
+{
+
+    //
+    return 0;
+}
+
 // CLI
 DEFINE_string(tiles, "", "a json file of the tile list");
 DEFINE_string(server, "", "server address (url:port)");
 DEFINE_string(uuid, "", "uuid");
 DEFINE_string(name, "", "data name");
-DEFINE_bool(methods, false, "GET/POST"); // GET(true)/POST(false)
+DEFINE_bool(methods, false, "GET/POST"); // GET(true)/POST(false, by default)
+DEFINE_string(output, "", "output TIFF file name (.tif)");
+DEFINE_uint64(sx, 1, "size (voxels) in x axis");
+DEFINE_uint64(sy, 1, "size (voxels) in y axis");
+DEFINE_uint64(sz, 1, "size (voxels) in z axis");
+DEFINE_uint64(sc, 1, "the number of color channels");
+DEFINE_uint64(x, 1, "offset (voxels) in x axis");
+DEFINE_uint64(y, 1, "offset (voxels) in y axis");
+DEFINE_uint64(z, 1, "offset (voxels) in z axis");
+DEFINE_double(vsx, 1.0, "voxel size in x axis");
+DEFINE_double(vsy, 1.0, "voxel size in y axis");
+DEFINE_double(vsz, 1.0, "voxel size in z axis");
 
 // main
 int main(int argc, char *argv[])
@@ -541,6 +613,8 @@ int main(int argc, char *argv[])
     // tile list
     if(requestMethods == "POST")
     {
+        // POST
+
         // load tiles info
         tileListType tiles;
 
@@ -576,9 +650,18 @@ int main(int argc, char *argv[])
     else
     {
         // GET
+
+        //
+        if(FLAGS_output.substr(FLAGS_output.find_last_of(".") + 1) != "tif")
+        {
+            std::cout<<"Invalid output file format!"<<endl;
+            return -1;
+        }
+
+        //
+        DataManager dataManager;
+        dataManager.getData(FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_x, FLAGS_y, FLAGS_z, FLAGS_sx, FLAGS_sy, FLAGS_sz, FLAGS_sc, FLAGS_vsx, FLAGS_vsy, FLAGS_vsz, FLAGS_output);
     }
-
-
 
     //
     return 0;

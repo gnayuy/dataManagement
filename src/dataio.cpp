@@ -214,6 +214,10 @@ void* TiffIO::getData()
 {
     return m_Data;
 }
+void TiffIO::setData(void *p)
+{
+    m_Data = p;
+}
 
 void TiffIO::close()
 {

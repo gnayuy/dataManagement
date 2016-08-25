@@ -22,6 +22,7 @@
 #include <limits>
 #include <complex>
 #include <float.h>
+#include <codecvt>
 using namespace std;
 
 //
@@ -288,6 +289,7 @@ public:
     
     // data
     void* getData();
+    void setData(void *p);
     
 public:
     string inputFileName,outputFileName;
