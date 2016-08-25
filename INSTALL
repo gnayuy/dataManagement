@@ -1,0 +1,20 @@
+This document will show you step by step compiling dataManagement and all dependent toolkit.
+
+# set your own environment, by default /usr/local
+PREFIX=$1
+
+export LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH
+
+# openssl
+
+./Configure linux-x86_64 --openssldir=$PREFIX 
+make depend
+make -j8
+make install
+
+#
+
+
+
+
+# If you still have any questions, please contact Yang at gnayuy@gmail.com.
