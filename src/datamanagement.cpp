@@ -56,26 +56,20 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
     {
         //
         long size = sx*sy*sz;
-        unsigned char *p = NULL;
-        new1dp<unsigned char, long>(p, size);
         bool hasData = false;
 
         for(long k=0; k<sz; k++)
         {
             long offz = k*sx*sy;
-            long oz = k*bufSizeX*bufSizeY;
             for(long j=0; j<sy; j++)
             {
                 long offy = offz + j*sx;
-                long oy = oz + j*bufSizeX;
                 for(long i=0; i<sx; i++)
                 {
-                    unsigned char val = buffer[offy+i];
-                    p[oy+i] = val;
-
-                    if(val>0)
+                    if(buffer[offy+i]>0)
                     {
                         hasData = true;
+                        break;
                     }
                 }
             }
@@ -85,13 +79,38 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
 
         if(hasData)
         {
-            rawptr_buffer<unsigned char> rawBuf(buffer, size, std::ios::in);
+            //
+            unsigned char *p = NULL;
+            new1dp<unsigned char, long>(p, size);
+            for(long k=0; k<sz; k++)
+            {
+                long offz = k*sx*sy;
+                long oz = k*bufSizeX*bufSizeY;
+                for(long j=0; j<sy; j++)
+                {
+                    long offy = offz + j*sx;
+                    long oy = oz + j*bufSizeX;
+                    for(long i=0; i<sx; i++)
+                    {
+                        unsigned char val = buffer[offy+i];
+                        p[oy+i] = val;
+
+                        if(val>0)
+                        {
+                            hasData = true;
+                        }
+                    }
+                }
+            }
+
+            //
+            rawptr_buffer<unsigned char> rawBuf(p, size, std::ios::in);
             concurrency::streams::istream isbuf(rawBuf);
             httpPostAsync(client, builder, isbuf, size).wait();
-        }
 
-        // dealloc
-        del1dp<unsigned char>(p);
+            // dealloc
+            del1dp<unsigned char>(p);
+        }
     }
     else
     {
@@ -212,22 +231,6 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
 
                         }
                     }
-                }
-
-                cout<<"load all tiles inside this buffer"<<endl;
-
-                //
-                if(buffer)
-                {
-                    for(long iter=0; iter<sizeBuf; iter++)
-                    {
-                        if(buffer[iter]>0)
-                        {
-                            cout<<"successful load the data"<<endl;
-                            break;
-                        }
-                    }
-
                 }
 
                 // upstreaming

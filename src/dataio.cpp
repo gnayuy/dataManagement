@@ -337,6 +337,10 @@ bool TiffIO::canReadFile(char *fileNameToRead)
         return false;
     }
     
+    // suppress the warning messages
+    TIFFErrorHandler WarnHandler = TIFFSetWarningHandler(0);
+    TIFFSetWarningHandler(WarnHandler);
+
     //
     TIFF* tif = TIFFOpen( const_cast<char *>(m_FileName), "r" );
     if(tif == NULL)
