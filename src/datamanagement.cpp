@@ -50,17 +50,34 @@ DataManager::~DataManager()
 
 }
 
-int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long size)
+int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long bx, long by, long bz, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ)
 {
     if(buffer!=NULL)
     {
+        //
+        long size = sx*sy*sz;
+        unsigned char *p = NULL;
+        new1dp<unsigned char, long>(p, size);
         bool hasData = false;
-        for(long i=0; i<size; i++)
+
+        for(long k=0; k<sz; k++)
         {
-            if(buffer[i]>0)
+            long offz = k*sx*sy;
+            long oz = k*bufSizeX*bufSizeY;
+            for(long j=0; j<sy; j++)
             {
-                hasData = true;
-                break;
+                long offy = offz + j*sx;
+                long oy = oz + j*bufSizeX;
+                for(long i=0; i<sx; i++)
+                {
+                    unsigned char val = buffer[offy+i];
+                    p[oy+i] = val;
+
+                    if(val>0)
+                    {
+                        hasData = true;
+                    }
+                }
             }
         }
 
@@ -72,6 +89,14 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
             concurrency::streams::istream isbuf(rawBuf);
             httpPostAsync(client, builder, isbuf, size).wait();
         }
+
+        // dealloc
+        del1dp<unsigned char>(p);
+    }
+    else
+    {
+        cout<<"NULL pointer!"<<endl;
+        return -1;
     }
 
     //
@@ -140,7 +165,6 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     bufZ = tsz*8;
 
     long sizeBuf = bufX*bufY*bufZ;
-    long sizeChunk = csx*csy*csz;
 
     //
     for(long i=0; i<32; i++)
@@ -179,14 +203,20 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                     new1dp<unsigned char>(buffer, sizeBuf);
                                 }
 
-                                unsigned char *buf = buffer + (kk*tsz)*bufX*bufY + (jj*tsy)*bufX + ii*tsx;
-                                loadTile(buf, tiles[n].ch1, tiles[n].ch2);
+                                long bx = ii*tsx;
+                                long by = jj*tsy;
+                                long bz = kk*tsz;
+                                unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+                                loadTile(buf, tiles[n].ch1, tiles[n].ch2, bx, by, bz, bufX, bufY, bufZ);
                             }
 
                         }
                     }
                 }
 
+                cout<<"load all tiles inside this buffer"<<endl;
+
+                //
                 if(buffer)
                 {
                     for(long iter=0; iter<sizeBuf; iter++)
@@ -229,8 +259,11 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                 queryPath.append_path(offsetpath);
                                 cout<<queryPath.to_string()<<endl;
 
-                                long offset = (kk*csz)*bufX*bufY + (jj*csy)*bufX + ii*csx;
-                                if(upstreaming(client, queryPath, buffer+offset, sizeChunk))
+                                long bx = ii*csx;
+                                long by = jj*csy;
+                                long bz = kk*csz;
+                                unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+                                if(upstreaming(client, queryPath, buf, bx, by, bz, csx, csy, csz, bufX, bufY, bufZ))
                                 {
                                     cout<<"Fail to upstreaming data to the server"<<endl;
                                     return -1;
@@ -250,8 +283,10 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     return 0;
 }
 
-int DataManager::loadTile(unsigned char *&p, string ch1, string ch2)
+int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bx, long by, long bz, long bufSizeX, long bufSizeY, long bufSizeZ)
 {
+    cout<<ch1<<" "<<bx<<" "<<by<<" "<<bz<<endl;
+
     // load ch1 and ch2
     TiffIO tiff1, tiff2;
 
@@ -290,22 +325,32 @@ int DataManager::loadTile(unsigned char *&p, string ch1, string ch2)
     // interleaved RG copy to p
     if(datatype==USHORT)
     {
+        //
         unsigned short *pData = (unsigned short*)p;
         unsigned short *pCh1 = (unsigned short*)(tiff1.getData());
         unsigned short *pCh2 = (unsigned short*)(tiff2.getData());
 
+        // buffer size designed for byte data
+        bufSizeX /= 2;
+        bufSizeY /= 2;
+        bufSizeZ /= 2;
+
+        //
         for(z=0; z<sz; z++)
         {
             long offz = z*sy*sx;
+            long oz = z*bufSizeX*bufSizeY;
             for(y=0; y<sy; y++)
             {
                 long offy = offz + y*sx;
+                long oy = oz + y*bufSizeX;
                 for(x=0; x<sx; x++)
                 {
                     long idx = offy + x;
+                    long ind = oy + 2*x;
 
-                    pData[2*idx] = pCh1[idx];
-                    pData[2*idx+1] = pCh2[idx];
+                    pData[ind] = pCh1[idx];
+                    pData[ind+1] = pCh2[idx];
                 }
             }
         }
