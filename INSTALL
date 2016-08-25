@@ -7,9 +7,9 @@ PREFIX=$1
 
 export LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH
 
-# openssl
+# openssl (https://wiki.openssl.org/index.php/Compilation_and_Installation)
 
-./Configure linux-x86_64 --openssldir=$PREFIX 
+./Configure shared linux-x86_64 --openssldir=$PREFIX 
 make depend
 make -j8
 make install
