@@ -1,4 +1,6 @@
-This document will show you step by step compiling dataManagement and all dependent toolkit.
+# This document will show you step by step compiling dataManagement and all dependent toolkit.
+# If you work on Linux, for example, Fedora, you can try "yum install gcc gcc-c++" to obtain stable version of gcc/g++ compiler.
+
 
 # set your own environment, by default /usr/local
 PREFIX=$1
