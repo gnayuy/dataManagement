@@ -1,7 +1,7 @@
 
 ## create a MouseLightSubset repo
 
-dvid repos new MouseLightSubset "MouseLightSubset"
+dvid -rpc=:7401 repos new MouseLightSubset
 #New repo "MouseLightSubset" created with head node cd0052dee0db43f89270ba1b0d98ca57
 #
 # UUID=cd0052dee0db43f89270ba1b0d98ca57 in this case, short for cd0
@@ -11,7 +11,7 @@ UUID=cd0
 
 ## create a grayscale uint8blk
 
-dvid repo $UUID new uint8blk grayscale VoxelSize=250.02763671875,251.55907495471,1001.04044117647
+dvid -rpc=:7401 repo $UUID new uint8blk grayscale VoxelSize=250.02763671875,251.55907495471,1001.04044117647
 #Data "grayscale" [uint8blk] added to node cd0052dee0db43f89270ba1b0d98ca57
 #
 # http://localhost:8000/api/node/cd0/grayscale/info
@@ -22,16 +22,17 @@ dvid repo $UUID new uint8blk grayscale VoxelSize=250.02763671875,251.55907495471
 # value=mouselight_2015_07_11_johan.json
 #
 
-dvid repo $UUID new keyvalue metadata
+dvid-rpc=:7401 repo $UUID new keyvalue metadata
 #Data "metadata" [keyvalue] added to node cd0052dee0db43f89270ba1b0d98ca57
 #
 # http://localhost:8000/api/node/cd0/metadata/info
 #
 
-dvid -stdin node $UUID metadata put mouselightbranch3 < data/mouselight_2015_07_11_johan.json 
+dvid -rpc=:7401 -stdin node $UUID metadata put mouselightbranch3 < data/mouselight_2015_07_11_johan.json 
 #Put 507 bytes into key "mouselightbranch3" for keyvalue "metadata", UUID cd0
 #
 # http://localhost:8000/api/node/cd0/metadata/keys
 # http://localhost:8000/api/node/cd0/metadata/key/mouselightbranch3
 #
 
+dvid -rpc=:7401 shutdown
