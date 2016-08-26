@@ -16,12 +16,34 @@ sh bootstrap.sh --prefix=$PREFIX
 
 ./Configure shared linux-x86_64 --openssldir=$PREFIX 
 make depend
-make -j8
+make
 make install
 
-#
+# websocketpp
 
+mkdir build
+cd build
+cmake ..
+make
+make install
 
+# cpprestsdk
 
+mkdir build
+cd build
+ccmake ../Release
+make 
+make install
+
+WEBSOCKETPP_CONFIG=<YourENV>/lib/cmake/websocketpp
+WEBSOCKETPP_CONFIG_VERSION=<YourENV>/lib/cmake/websocketpp 
+
+# dataManagement
+
+mkdir build
+cd build
+cmake ..
+make
+make install
 
 # If you still have any questions, please contact Yang at gnayuy@gmail.com.
