@@ -38,6 +38,14 @@ make install
 WEBSOCKETPP_CONFIG=<YourENV>/lib/cmake/websocketpp
 WEBSOCKETPP_CONFIG_VERSION=<YourENV>/lib/cmake/websocketpp 
 
+# gflags
+
+mkdir build
+cd build
+ccmake ..
+make
+make install
+
 # dataManagement
 
 mkdir build
