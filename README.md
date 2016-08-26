@@ -11,7 +11,11 @@ Install [gflags][] for using the command lines. This is an option for compiling 
 ## api
 dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server:
 ```
-  % dataManagement -tiles <tilelist> -server <url:port> -uuid <uuid> -name <dataname> -methods <GET/POST>
+  // POST Data
+  % dataManagement -tiles <tilelist> -server <url:port> -uuid <uuid> -name <dataname> -methods <POST>
+  
+  // GET Data
+  % dataManagement -tiles <tilelist> -server <url:port> -uuid <uuid> -name <dataname> -methods <GET> -sx <size_x> -sy <size_y> -sz <size_z> -sc <colorchannels> -x <offset_x> -y <offset_y> -z <offset_z> -vsx <voxelsize_x> -vsy <voxelsize_y> -vsz <voxelsize_z>
 ```
 By default, "methods" set as "POST" and the tile list is required.
   
