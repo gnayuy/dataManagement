@@ -556,10 +556,10 @@ pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder build
             const std::string &text = inStringBuffer.collection();
 
             // For demonstration, convert the response text to a wide-character string.
-            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-            std::wostringstream ss;
-            ss << utf16conv.from_bytes(text.c_str()) << std::endl;
-            std::wcout << ss.str();
+//            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+//            std::wostringstream ss;
+//            ss << utf16conv.from_bytes(text.c_str()) << std::endl;
+//            std::wcout << ss.str();
         });
     });
 }
