@@ -125,10 +125,10 @@ pplx::task<void> DataManager::httpPostAsync(http_client client, uri_builder buil
     msg.set_request_uri(path_query_fragment);
     msg.set_body(isbuf, size, U("application/octet-stream"));
 
-    // Make an HTTP POST request and asynchronously process the response
+    // make an HTTP POST request and asynchronously process the response
     return client.request(msg, pplx::cancellation_token::none()).then([](http_response response)
     {
-        // Display the status code that the server returned
+        // display the status code that the server returned
         std::wostringstream stream;
         stream << U("Server returned status code ") << response.status_code() << U('.') << std::endl;
         std::wcout << stream.str();
@@ -537,35 +537,64 @@ int DataManager::saveTile(unsigned char *p, string outFileName, long sx, long sy
     return 0;
 }
 
-pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder builder)
+pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder builder, utility::size64_t size)
 {
-    return client.request(methods::GET).then([](http_response response)
+    return client.request(methods::GET, builder.to_string()).then([](http_response response)
     {
         if(response.status_code() != status_codes::OK)
         {
-            // Handle error cases...
+            // display the status code that the server returned
+            std::wostringstream stream;
+            stream << U("Server returned status code ") << response.status_code() << U('.') << std::endl;
+            std::wcout << stream.str();
+
+            // handle error cases ...
             return pplx::task_from_result();
         }
 
-        // Perform actions here reading from the response stream...
-        // In this example, we print the first 15 characters of the response to the console.
+        // perform actions here reading from the response stream ...
         concurrency::streams::istream bodyStream = response.body();
-        container_buffer<std::string> inStringBuffer;
-        return bodyStream.read(inStringBuffer, 15).then([inStringBuffer](size_t bytesRead)
+        rawptr_buffer<unsigned char> rawBuf;
+        return bodyStream.read(rawBuf, size).then([rawBuf](size_t bytesRead)
         {
-            const std::string &text = inStringBuffer.collection();
-
-            // For demonstration, convert the response text to a wide-character string.
-//            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-//            std::wostringstream ss;
-//            ss << utf16conv.from_bytes(text.c_str()) << std::endl;
-//            std::wcout << ss.str();
+            //
         });
     });
 }
 
 int DataManager::getData(utility::string_t server, utility::string_t uuid, utility::string_t dataName, long xoff, long yoff, long zoff, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, string outFileName)
 {
+    //
+    string sizePath = std::to_string(sx*4);
+    sizePath.append("_");
+    sizePath.append(std::to_string(sy));
+    sizePath.append("_");
+    sizePath.append(std::to_string(sz));
+
+    string offsetPath = std::to_string(xoff);
+    offsetPath.append("_");
+    offsetPath.append(std::to_string(yoff));
+    offsetPath.append("_");
+    offsetPath.append(std::to_string(zoff));
+
+    // client
+    http::uri uri = http::uri(server);
+    http_client client(uri);
+
+    http::uri_builder builder(U("/api/node/"));
+    builder.append_path(uuid);
+    builder.append_path(U("/"));
+    builder.append_path(dataName);
+    builder.append_path(U("/raw/0_1_2/"));
+    builder.append_path(sizePath);
+    builder.append_path(U('/'));
+    builder.append_path(offsetPath);
+
+    cout<<builder.to_string()<<endl;
+
+    // GET data
+
+    // save as a tiff
 
     //
     return 0;
