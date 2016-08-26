@@ -1,42 +1,28 @@
-# Example simple configuration for DVID with single database backend.
-# See config-multidb.toml for full range of configurations including
-# email notifications, authentication, and backend assignments.
-
+# Example simple configuration for DVID
 [server]
-httpAddress = "localhost:8000"
-rpcAddress = "localhost:8001"
-webClient = "/lhome/yy/work/mouselight/dvidspace/src/github.com/janelia-flyem/dvid-console"
-
-# How new data instance ids are generated.
-# Is one of "random" or "sequential".  If "sequential" can set "start_instance_id" property.
-# Use of "random" is a cheap way to have multiple frontend DVIDs use a shared store without
-# key collisions.
-instance_id_gen = "sequential"
-instance_id_start = 100  # new ids start at least from this.
+httpAddress = ":7400"
+rpcAddress = ":7401"
+webClient = "/data/mouselight/dvidspace/dvid/dvid-console"
+allowTiming = true
 
 # Email server to use for notifications and server issuing email-based authorization tokens.
-#[email]
-#notify = ["yuy@janelia.hhmi.org"]
-#username = "yuy@janelia.hhmi.org"
-#password = 
-#server = "10.42.5.23"
-#port = 25
+[email]
+notify = ["yuy@janelia.hhmi.org"]
+username = "yuy@janelia.hhmi.org"
+password = ""
+server = "10.42.5.23"
+port = 25
 
 [logging]
-logfile = "/lhome/yy/work/mouselight/dvidspace/config/august18.log"
+logfile = "/data/mouselight/dvidspace/config/august26.log"
 max_log_size = 500 # MB
 max_log_age = 30   # days
 
-# If no backend is specified, DVID will return an error unless there is only
-# one store, which will automatically be backend.default, as in this example.
-#   See config-full.toml for example of [backend] use.
+[backend]
+    [backend.default]
+    store = "local"
 
-
-# List the different storage systems available for metadata, data instances, etc.
-# Any nickname can be used for a store.  In this case, it's "raid6" to reflect
-# that the directory is on a RAID-6 drive system.  Note that all store properties
-# like "engine" and "path" should be lower-case by convention.
 [store]
-    [store.raid6]
+    [store.local]
     engine = "basholeveldb"
-    path = "/lhome/yy/work/mouselight/dvidspace/dvidstore"
+    path = "/data/mouselight/dvidspace/dvidstore"
