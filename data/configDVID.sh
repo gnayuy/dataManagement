@@ -1,5 +1,7 @@
 # config DVID
 #
+# gcc 4.8 and go 1.6 recommended
+# to build gcc, gmp, mpfr, mpc are required
 
 DVIDWORKSPACE=$1
 GOPACKAGEDIR=$2
