@@ -42,12 +42,17 @@ void Image::setResolution(double x, double y, double z)
 // class DataManager
 DataManager::DataManager()
 {
-
+    m_Data = NULL;
 }
 
 DataManager::~DataManager()
 {
+    clearData();
+}
 
+void DataManager::clearData()
+{
+    del1dp<unsigned char>(m_Data);
 }
 
 int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long bx, long by, long bz, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ)
@@ -510,8 +515,16 @@ void DataManager::computeOffset(tileListType &tiles)
     }
 }
 
-int DataManager::saveTile(unsigned char *p, string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType)
+int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType)
 {
+    //
+    if(!m_Data)
+    {
+        cout<<"NULL pointer!"<<endl;
+        return -1;
+    }
+
+    //
     TiffIO tif;
 
     tif.setResX(vsx);
@@ -519,27 +532,72 @@ int DataManager::saveTile(unsigned char *p, string outFileName, long sx, long sy
     tif.setResZ(vsz);
 
     tif.setDataType(dataType);
-    tif.setDimx(sx);
-    tif.setDimy(sy);
-    tif.setDimz(sz);
-    tif.setDimc(sc);
-    tif.setDimt(1);
 
-    tif.setData((void*)p);
+    //
+    long size = sx*sy*sz*sc;
+    sx /= sc;
 
-    if(!tif.canWriteFile(const_cast<char*>(outFileName.c_str())))
+    // cxyz -> xyzc
+    if(dataType==USHORT)
     {
-        cout<<"Fail to write the TIFF image."<<endl;
-        return -1;
+        unsigned short *pData = (unsigned short*)(m_Data);
+        unsigned short *p = NULL;
+        sx /= 2;
+
+        new1dp<unsigned short, long>(p,size);
+
+        long chnsize = sx*sy*sz;
+        for(long k=0; k<sz; k++)
+        {
+            long offk = k*sx*sy;
+            long offz = k*sc*sx*sy;
+            for(long j=0; j<sy; j++)
+            {
+                long offj = offk + j*sx;
+                long offy = offz + j*sx*sc;
+                for(long i=0; i<sx; i++)
+                {
+                    long offx = offy + i*sc;
+                    for(long c=0; c<sc; c++)
+                    {
+                        p[c*chnsize + offj + i] = pData[offx+c];
+                    }
+                }
+            }
+        }
+
+        //
+        tif.setDimx(sx);
+        tif.setDimy(sy);
+        tif.setDimz(sz);
+        tif.setDimc(sc);
+        tif.setDimt(1);
+
+        //
+        tif.setData((void*)p);
+
+        if(!tif.canWriteFile(const_cast<char*>(outFileName.c_str())))
+        {
+            cout<<"Fail to write the TIFF image."<<endl;
+            return -1;
+        }
+        tif.write();
+
+        //
+        del1dp<unsigned short>(p);
     }
-    tif.write();
+    else
+    {
+        // other data type
+    }
+
     //
     return 0;
 }
 
-pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder builder, utility::size64_t size)
+pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder builder, concurrency::streams::ostream stream)
 {
-    return client.request(methods::GET, builder.to_string()).then([](http_response response)
+    return client.request(methods::GET, builder.to_string()).then([stream](http_response response)
     {
         if(response.status_code() != status_codes::OK)
         {
@@ -548,17 +606,14 @@ pplx::task<void> DataManager::httpGetAsync(http_client client, uri_builder build
             stream << U("Server returned status code ") << response.status_code() << U('.') << std::endl;
             std::wcout << stream.str();
 
-            // handle error cases ...
-            return pplx::task_from_result();
+//            return response.extract_string().then([](utility::string_t message)
+//            {
+//                return pplx::task_from_exception<size_t>(std::exception(utility::conversions::to_utf8string(message).c_str()));
+//            });
         }
 
         // perform actions here reading from the response stream ...
-        concurrency::streams::istream bodyStream = response.body();
-        rawptr_buffer<unsigned char> rawBuf;
-        return bodyStream.read(rawBuf, size).then([rawBuf](size_t bytesRead)
-        {
-            //
-        });
+        return response.body().read_to_end(stream.streambuf());
     });
 }
 
@@ -587,14 +642,22 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
     builder.append_path(dataName);
     builder.append_path(U("/raw/0_1_2/"));
     builder.append_path(sizePath);
-    builder.append_path(U('/'));
+    builder.append_path(U("/"));
     builder.append_path(offsetPath);
 
     cout<<builder.to_string()<<endl;
 
+    //
+    long size = 4*sx*sy*sz; // in bytes
+    clearData();
+    rawptr_buffer<unsigned char> rawBuf(m_Data, size, std::ios::out);
+    concurrency::streams::ostream stream(rawBuf);
+
     // GET data
+    httpGetAsync(client, builder, stream).wait();
 
     // save as a tiff
+    saveTile(outFileName, sx, sy, sz, sc, vsx, vsy, vsz, USHORT);
 
     //
     return 0;

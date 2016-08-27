@@ -40,13 +40,18 @@ public:
     int loadTile(unsigned char *&p, string ch1, string ch2, long bx, long by, long bz, long bufSizeX, long bufSizeY, long bufSizeZ);
     int findNode(tileListType tiles, long xoff, long yoff, long zoff);
     void computeOffset(tileListType &tiles);
-    int saveTile(unsigned char *p, string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType);
+    int saveTile(string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType);
 
     pplx::task<void> httpPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size);
     int putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName);
 
-    pplx::task<void> httpGetAsync(http_client client, uri_builder builder, utility::size64_t size);
+    pplx::task<size_t> httpGetAsync(http_client client, uri_builder builder, concurrency::streams::ostream stream);
     int getData(utility::string_t server, utility::string_t uuid, utility::string_t dataName, long xoff, long yoff, long zoff, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, string outFileName);
+
+    void clearData();
+
+public:
+    unsigned char *m_Data;
 };
 
 #endif // __DATAMANAGEMENT_H__
