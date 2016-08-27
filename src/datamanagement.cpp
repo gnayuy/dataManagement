@@ -524,6 +524,10 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
         return -1;
     }
 
+    cout<<"save image as "<<outFileName<<endl;
+    cout<<"image size: "<<sx<<" "<<sy<<" "<<sz<<" "<<sc<<endl;
+    cout<<"voxel size: "<<vsx<<" "<<vsy<<" "<<vsz<<endl;
+
     //
     TiffIO tif;
 
@@ -535,14 +539,14 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
 
     //
     long size = sx*sy*sz*sc;
-    sx /= sc;
 
     // cxyz -> xyzc
     if(dataType==USHORT)
     {
+        size *= 2;
+
         unsigned short *pData = (unsigned short*)(m_Data);
         unsigned short *p = NULL;
-        sx /= 2;
 
         new1dp<unsigned short, long>(p,size);
 
@@ -566,21 +570,20 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
             }
         }
 
+        cout<<"Data copied (cxyz -> xyzc)"<<endl;
+
         //
         tif.setDimx(sx);
         tif.setDimy(sy);
         tif.setDimz(sz);
-        tif.setDimc(sc);
+        tif.setDimc(1); // tif.setDimc(sc); // test the first channel
         tif.setDimt(1);
 
         //
         tif.setData((void*)p);
+        tif.setFileName(const_cast<char*>(outFileName.c_str()));
 
-        if(!tif.canWriteFile(const_cast<char*>(outFileName.c_str())))
-        {
-            cout<<"Fail to write the TIFF image."<<endl;
-            return -1;
-        }
+        //
         tif.write();
 
         //
@@ -649,15 +652,21 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
 
     //
     long size = 4*sx*sy*sz; // in bytes
-    clearData();
-    rawptr_buffer<unsigned char> rawBuf(m_Data, size, std::ios::out);
+    new1dp<unsigned char, long>(m_Data, size);
+    rawptr_buffer<unsigned char> rawBuf(m_Data, size);
     concurrency::streams::ostream stream(rawBuf);
+
+    cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
 
     // GET data
     httpGetAsync(client, builder, stream).wait();
 
+    cout<<"download data from the server"<<endl;
+
     // save as a tiff
     saveTile(outFileName, sx, sy, sz, sc, vsx, vsy, vsz, USHORT);
+
+    cout<<"successful save the image"<<endl;
 
     //
     return 0;
@@ -684,9 +693,6 @@ DEFINE_double(vsz, 1.0, "voxel size in z axis");
 // main
 int main(int argc, char *argv[])
 {
-    // Example:
-    // time ./src/datamanagement -tiles ../data/tileList.json -server http://localhost:8000 -uuid cd0 -name grayscale
-
     //
     gflags::SetUsageMessage("dataManager -tiles <tilelist.json> -server <url:port> -uuid <uuid> -name <dataname> -methods <GET/POST>");
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -706,6 +712,7 @@ int main(int argc, char *argv[])
     if(requestMethods == "POST")
     {
         // POST
+        // time ./src/datamanagement -tiles ../data/tileList.json -server http://localhost:8000 -uuid 09a -name grayscale
 
         // load tiles info
         tileListType tiles;
@@ -742,6 +749,7 @@ int main(int argc, char *argv[])
     else
     {
         // GET
+        // time ./src/datamanagement -server http://localhost:8000 -uuid 09a -name grayscale -methods true -x 23040 -y 21344 -z 3264 -sx 640 -sy 736 -sz 544 -sc 2 -vsx 0.25 -vsy 0.25 -vsz 1.00 -output ./test.tif
 
         //
         if(FLAGS_output.substr(FLAGS_output.find_last_of(".") + 1) != "tif")

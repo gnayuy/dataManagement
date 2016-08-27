@@ -89,9 +89,12 @@ void TiffIO::setFileName(char* fileName)
         cout<<"Invalid file name"<<endl;
         return;
     }
-    
-    new1dp<char, int>(this->m_FileName, strlen(fileName) + 1);
-    strcpy(this->m_FileName,fileName);
+
+    if(!this->m_FileName || strcmp (this->m_FileName,fileName) != 0)
+    {
+        new1dp<char, int>(this->m_FileName, strlen(fileName) + 1);
+        strcpy(this->m_FileName,fileName);
+    }
     
     return;
 }
@@ -228,23 +231,23 @@ void TiffIO::close()
         m_TiffImage = NULL;
     }
 
-    if(m_Data)
-    {
-        if(m_DataType==UCHAR)
-        {
-            unsigned char *p = (unsigned char *)(m_Data);
-            del1dp<unsigned char>(p);
-        }
-        else if(m_DataType==USHORT)
-        {
-            unsigned short *p = (unsigned short *)(m_Data);
-            del1dp<unsigned short>(p);
-        }
-        else
-        {
-            // other data type
-        }
-    }
+//    if(m_Data)
+//    {
+//        if(m_DataType==UCHAR)
+//        {
+//            unsigned char *p = (unsigned char *)(m_Data);
+//            del1dp<unsigned char>(p);
+//        }
+//        else if(m_DataType==USHORT)
+//        {
+//            unsigned short *p = (unsigned short *)(m_Data);
+//            del1dp<unsigned short>(p);
+//        }
+//        else
+//        {
+//            // other data type
+//        }
+//    }
     
     return;
 }
@@ -989,7 +992,7 @@ bool TiffIO::canWriteFile(char *fileNameToWrite)
 #endif
     }
     
-    m_TiffImage = TIFFOpen(fileNameToWrite, mode);
+    m_TiffImage = TIFFOpen(this->m_FileName, mode);
     if ( !m_TiffImage )
     {
         cout<< "Cannot open file: " << this->m_FileName << endl;
@@ -1004,7 +1007,7 @@ int TiffIO::write()
 {
     if ( !m_TiffImage )
     {
-        if ( !this->canWriteFile(m_FileName) )
+        if ( !this->canWriteFile(this->m_FileName) )
         {
             cout<< "Cannot open file: " << this->m_FileName << endl;
             close();
