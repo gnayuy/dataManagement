@@ -538,23 +538,21 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
     tif.setDataType(dataType);
 
     //
-    long size = sx*sy*sz*sc;
+    long chnsize = sx*sy*sz;
+    long size = chnsize*3; // RG -> RGB
 
     // cxyz -> xyzc
     if(dataType==USHORT)
     {
-        size *= 2;
-
         unsigned short *pData = (unsigned short*)(m_Data);
         unsigned short *p = NULL;
 
         new1dp<unsigned short, long>(p,size);
 
-        long chnsize = sx*sy*sz;
         for(long k=0; k<sz; k++)
         {
             long offk = k*sx*sy;
-            long offz = k*sc*sx*sy;
+            long offz = k*sy*sx*sc;
             for(long j=0; j<sy; j++)
             {
                 long offj = offk + j*sx;
@@ -566,6 +564,7 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
                     {
                         p[c*chnsize + offj + i] = pData[offx+c];
                     }
+                    p[sc*chnsize + offj + i] = 0;
                 }
             }
         }
@@ -598,9 +597,9 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
     return 0;
 }
 
-pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder builder, concurrency::streams::ostream stream)
+pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder builder, rawptr_buffer<unsigned char> rawBuf)
 {
-    return client.request(methods::GET, builder.to_string()).then([stream](http_response response)
+    return client.request(methods::GET, builder.to_string()).then([rawBuf](http_response response)
     {
         if(response.status_code() != status_codes::OK)
         {
@@ -616,7 +615,7 @@ pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder bui
         }
 
         // perform actions here reading from the response stream ...
-        return response.body().read_to_end(stream.streambuf());
+        return response.body().read_to_end(rawBuf).get();
     });
 }
 
@@ -654,12 +653,12 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
     long size = 4*sx*sy*sz; // in bytes
     new1dp<unsigned char, long>(m_Data, size);
     rawptr_buffer<unsigned char> rawBuf(m_Data, size);
-    concurrency::streams::ostream stream(rawBuf);
+    //concurrency::streams::ostream stream(rawBuf);
 
     cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
 
     // GET data
-    httpGetAsync(client, builder, stream).wait();
+    httpGetAsync(client, builder, rawBuf).wait();
 
     cout<<"download data from the server"<<endl;
 
@@ -840,6 +839,7 @@ int main(int argc, char *argv[])
     {
         if(FLAGS_testOption==0)
         {
+            //time ./src/datamanagement -output data/testOutput.tif -ch1 data/default.0.tif -ch2 data/default.1.tif -test true
             return testReadWriteData(FLAGS_output, FLAGS_ch1, FLAGS_ch2);
         }
         else if(FLAGS_testOption==1)

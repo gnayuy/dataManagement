@@ -45,7 +45,7 @@ public:
     pplx::task<void> httpPostAsync(http_client client, uri_builder builder, concurrency::streams::istream isbuf, utility::size64_t size);
     int putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName);
 
-    pplx::task<size_t> httpGetAsync(http_client client, uri_builder builder, concurrency::streams::ostream stream);
+    pplx::task<size_t> httpGetAsync(http_client client, uri_builder builder, rawptr_buffer<unsigned char> rawBuf);
     int getData(utility::string_t server, utility::string_t uuid, utility::string_t dataName, long xoff, long yoff, long zoff, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, string outFileName);
 
     void clearData();
