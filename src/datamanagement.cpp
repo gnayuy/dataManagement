@@ -39,6 +39,22 @@ void Image::setResolution(double x, double y, double z)
 
 }
 
+// class IndexChunk
+IndexBuffer::IndexBuffer(long otx, long oty, long otz, long ocx, long ocy, long ocz)
+{
+    offTileX = otx;
+    offTileY = oty;
+    offTileZ = otz;
+    offChunkX = ocx;
+    offChunkY = ocy;
+    offChunkZ = ocz;
+}
+
+IndexBuffer::~IndexBuffer()
+{
+
+}
+
 // class DataManager
 DataManager::DataManager()
 {
@@ -138,6 +154,150 @@ pplx::task<void> DataManager::httpPostAsync(http_client client, uri_builder buil
         stream << U("Server returned status code ") << response.status_code() << U('.') << std::endl;
         std::wcout << stream.str();
     });
+}
+
+int DataManager::putBufferData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName, long bufNumber)
+{
+    if(bufLUT.size()==0)
+    {
+        cout<<"Invalid buffer look up table!"<<endl;
+        return -1;
+    }
+
+    // client
+    http::uri uri = http::uri(server);
+    http_client client(uri);
+
+    http::uri_builder builder(U("/api/node/"));
+    builder.append_path(uuid);
+    builder.append_path(U("/"));
+    builder.append_path(dataName);
+    builder.append_path(U("/raw/0_1_2/640_736_544/"));
+
+    cout<<builder.to_string()<<endl;
+
+    //
+    Tile t = tiles[0];
+    cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<endl;
+
+    // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
+    // Least Common Multiple (dim, 32)
+    long tsx = 640, tsy = 552, tsz = 204;
+    long csx = 640, csy = 736, csz = 544;
+    long level1;
+    long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx;
+    long offTileX, offTileY, offTileZ, otx, oty, otz;
+    long offChunkX, offChunkY, offChunkZ;
+    long bufX, bufY, bufZ;
+
+    //
+    level1 = 3; // pick branch 3
+
+    bb_bx = 0;
+    bb_by = 32*tsy;
+    bb_bz = 0;
+
+    bb_ex = 32*tsx;
+    bb_ey = 64*tsy;
+    bb_ez = 32*tsz;
+
+    bufX = tsx*4;
+    bufY = tsy*4;
+    bufZ = tsz*8;
+
+    long sizeBuf = bufX*bufY*bufZ;
+
+    //
+    offTileX = bufLUT[bufNumber].offTileX;
+    offTileY = bufLUT[bufNumber].offTileY;
+    offTileZ = bufLUT[bufNumber].offTileZ;
+
+    offChunkX = bufLUT[bufNumber].offChunkX;
+    offChunkY = bufLUT[bufNumber].offChunkY;
+    offChunkZ = bufLUT[bufNumber].offChunkZ;
+
+    // find tile and fill the buffer
+    unsigned char *buffer = NULL;
+    for(long ii=0; ii<1; ii++)
+    {
+        otx = offTileX + ii;
+        for(long jj=0; jj<4; jj++)
+        {
+            oty = offTileY + jj;
+            for(long kk=0; kk<8; kk++)
+            {
+                otz = offTileZ + kk;
+
+                //
+                int n = findNode(tiles, otx, oty, otz);
+                if(n>=0)
+                {
+                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<tiles[n].octreepath<<endl;
+
+                    if(buffer==NULL)
+                    {
+                        new1dp<unsigned char>(buffer, sizeBuf);
+                    }
+
+                    long bx = ii*tsx;
+                    long by = jj*tsy;
+                    long bz = kk*tsz;
+                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+                    loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufX, bufY, bufZ);
+                }
+
+            }
+        }
+    }
+
+    // upstreaming
+    if(buffer!=NULL)
+    {
+        //
+        for(long ii=0; ii<4; ii++)
+        {
+            otx = offChunkX + ii;
+            offx = bb_bx + otx*csx;
+            for(long jj=0; jj<3; jj++)
+            {
+                oty = offChunkY + jj;
+                offy = bb_by + oty*csy;
+                for(long kk=0; kk<3; kk++)
+                {
+                    otz = offChunkZ + kk;
+                    offz = bb_bz + otz*csz;
+
+                    cout<<otx<<" "<<oty<<" "<<otz<<" "<<offx<<" "<<offy<<" "<<offz<<endl;
+
+                    string offsetpath = std::to_string(offx);
+                    offsetpath.append("_");
+                    offsetpath.append(std::to_string(offy));
+                    offsetpath.append("_");
+                    offsetpath.append(std::to_string(offz));
+
+                    http::uri_builder queryPath = builder;
+                    queryPath.append_path(offsetpath);
+                    cout<<queryPath.to_string()<<endl;
+
+                    long bx = ii*csx;
+                    long by = jj*csy;
+                    long bz = kk*csz;
+                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+                    if(upstreaming(client, queryPath, buf, csx, csy, csz, bufX, bufY, bufZ))
+                    {
+                        cout<<"Fail to upstreaming data to the server"<<endl;
+                        return -1;
+                    }
+                }
+            }
+        }
+    }
+
+    // dealloc buffer
+    del1dp<unsigned char>(buffer);
+
+    //
+    return 0;
 }
 
 int DataManager::putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName)
@@ -610,10 +770,10 @@ pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder bui
             stream << U("Server returned status code ") << response.status_code() << U('.') << std::endl;
             std::wcout << stream.str();
 
-//            return response.extract_string().then([](utility::string_t message)
-//            {
-//                return pplx::task_from_exception<size_t>(std::exception(utility::conversions::to_utf8string(message).c_str()));
-//            });
+            //            return response.extract_string().then([](utility::string_t message)
+            //            {
+            //                return pplx::task_from_exception<size_t>(std::exception(utility::conversions::to_utf8string(message).c_str()));
+            //            });
         }
 
         // perform actions here reading from the response stream ...
@@ -673,12 +833,33 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
     return 0;
 }
 
+void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ,
+                               long blocksX, long blocksY, long blocksZ,
+                               long chunksX, long chunksY, long chunksZ)
+{
+    //
+    for(long i=0; i<tilesX; i+=blocksX)
+    {
+        for(long j=0; j<tilesY; j+=blocksY)
+        {
+            for(long k=0; k<tilesZ; k+=blocksZ)
+            {
+                //
+                IndexBuffer ib(i, j + tilesY, k, i/blocksX * chunksX, j/blocksY * chunksY, k/blocksZ * chunksZ);
+
+                bufLUT.push_back(ib);
+            }
+        }
+    }
+}
+
 // CLI
 DEFINE_string(tiles, "", "a json file of the tile list");
 DEFINE_string(server, "", "server address (url:port)");
 DEFINE_string(uuid, "", "uuid");
 DEFINE_string(name, "", "data name");
 DEFINE_bool(methods, false, "GET/POST"); // GET(true)/POST(false, by default)
+DEFINE_uint64(buffer, 0, "buffer#");
 DEFINE_string(output, "", "output TIFF file name (.tif)");
 DEFINE_uint64(sx, 1, "size (voxels) in x axis");
 DEFINE_uint64(sy, 1, "size (voxels) in y axis");
@@ -823,7 +1004,92 @@ int testReadWriteData(string outFileName, string ch1, string ch2)
 //
 int testSplitData()
 {
+    // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
+    // Least Common Multiple (dim, 32)
+    long tsx = 640, tsy = 552, tsz = 204;
+    long csx = 640, csy = 736, csz = 544;
+    long level1;
+    long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx;
+    long offTileX, offTileY, offTileZ, otx, oty, otz;
+    long offChunkX, offChunkY, offChunkZ;
+    long bufX, bufY, bufZ;
+
     //
+    level1 = 3; // pick branch 3
+
+    bb_bx = 0;
+    bb_by = 32*tsy;
+    bb_bz = 0;
+
+    bb_ex = 32*tsx;
+    bb_ey = 64*tsy;
+    bb_ez = 32*tsz;
+
+    bufX = tsx*4;
+    bufY = tsy*4;
+    bufZ = tsz*8;
+
+    long sizeBuf = bufX*bufY*bufZ;
+
+    //
+    long nBuffer = 0;
+
+    //
+    for(long i=0; i<32; i++)
+    {
+        offTileX = i;
+        offChunkX = i*4;
+        for(long j=0; j<32; j+=4)
+        {
+            offTileY = j + 32;
+            offChunkY = j/4 * 3;
+            for(long k=0; k<32; k+=8)
+            {
+                offTileZ = k;
+                offChunkZ = k/8 * 3;
+
+                // find tile and fill the buffer
+                unsigned char *buffer = NULL;
+                for(long ii=0; ii<1; ii++)
+                {
+                    otx = offTileX + ii;
+                    for(long jj=0; jj<4; jj++)
+                    {
+                        oty = offTileY + jj;
+                        for(long kk=0; kk<8; kk++)
+                        {
+                            otz = offTileZ + kk;
+
+                            //
+                            //cout<<otx<<" "<<oty<<" "<<otz<<endl;
+                        }
+                    }
+                }
+
+                // upstreaming
+                for(long ii=0; ii<4; ii++)
+                {
+                    otx = offChunkX + ii;
+                    offx = bb_bx + otx*csx;
+                    for(long jj=0; jj<3; jj++)
+                    {
+                        oty = offChunkY + jj;
+                        offy = bb_by + oty*csy;
+                        for(long kk=0; kk<3; kk++)
+                        {
+                            otz = offChunkZ + kk;
+                            offz = bb_bz + otz*csz;
+
+                            //cout<<otx<<" "<<oty<<" "<<otz<<" : /"<<offx<<"_"<<offy<<"_"<<offz<<endl;
+                        }
+                    }
+                }
+
+                //
+                cout<<i<<" "<<j<<" "<<k<<" "<<nBuffer++<<endl;
+            }
+        }
+    }
 
     //
     return 0;
@@ -846,7 +1112,8 @@ int main(int argc, char *argv[])
         }
         else if(FLAGS_testOption==1)
         {
-
+            // time ./src/datamanagement -test true -testOption 1
+            testSplitData();
         }
         else
         {
@@ -905,7 +1172,9 @@ int main(int argc, char *argv[])
         //
         DataManager dataManager;
         dataManager.computeOffset(tiles);
-        dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
+        //dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
+        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3);
+        dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
     }
     else
     {
