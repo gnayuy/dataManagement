@@ -690,6 +690,144 @@ DEFINE_double(vsx, 1.0, "voxel size in x axis");
 DEFINE_double(vsy, 1.0, "voxel size in y axis");
 DEFINE_double(vsz, 1.0, "voxel size in z axis");
 
+//
+DEFINE_string(ch1, "", "1st color channel");
+DEFINE_string(ch2, "", "2nd color channel");
+DEFINE_bool(test, false, "test");
+DEFINE_uint64(testOption, 0, "test option");
+
+//
+int testReadWriteData(string outFileName, string ch1, string ch2)
+{
+    //
+    unsigned char *p = NULL;
+
+    // load ch1 and ch2
+    TiffIO tiff1, tiff2;
+
+    if(tiff1.canReadFile(const_cast<char*>(ch1.c_str())))
+    {
+        tiff1.read();
+    }
+    else
+    {
+        std::cout<<"Fail to read tiff image "<<ch1<<"."<<std::endl;
+        return -1;
+    }
+
+    if(tiff2.canReadFile(const_cast<char*>(ch2.c_str())))
+    {
+        tiff2.read();
+    }
+    else
+    {
+        std::cout<<"Fail to read tiff image "<<ch2<<"."<<std::endl;
+        return -1;
+    }
+
+    //
+    long x,y,z;
+    long sx = tiff2.getDimx();
+    long sy = tiff2.getDimy();
+    long sz = tiff2.getDimz();
+    int dataType = tiff2.getDataType();
+
+    if(tiff1.getDimx()!=sx || tiff1.getDimy()!=sy || tiff1.getDimz()!=sz || tiff1.getDataType()!=dataType)
+    {
+        cout<<"Inconsistent tiff images with channel1 "<<ch1<<" and channel 2 "<<ch2<<endl;
+        return -1;
+    }
+
+    // interleaved RG copy to p
+    long szChannel = sx*sy*sz;
+    long size = szChannel*6; // ushort with 2 colors
+    new1dp<unsigned char, long>(p, size);
+
+    //
+    if(dataType==USHORT)
+    {
+        //
+        unsigned short *pData = (unsigned short*)p;
+        unsigned short *pCh1 = (unsigned short*)(tiff1.getData());
+        unsigned short *pCh2 = (unsigned short*)(tiff2.getData());
+
+        //
+        for(z=0; z<sz; z++)
+        {
+            long offz = z*sy*sx;
+            //long oz = z*sy*sx*3;
+            for(y=0; y<sy; y++)
+            {
+                long offy = offz + y*sx;
+                //long oy = oz + y*sx*3;
+                for(x=0; x<sx; x++)
+                {
+                    long idx = offy + x;
+                    //long ind = oy + 3*x;
+
+                    pData[idx] = pCh1[idx];
+                    pData[idx+szChannel] = pCh2[idx];
+                    pData[idx+2*szChannel] = 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        // other data type
+    }
+
+    // stream buffer
+    rawptr_buffer<unsigned char> rawBuf(p, size, std::ios::in);
+    concurrency::streams::istream isbuf(rawBuf);
+
+    unsigned char *pOut = NULL;
+    new1dp<unsigned char, long>(pOut, size);
+    rawptr_buffer<unsigned char> rb(pOut, size);
+    //concurrency::streams::ostream osbuf(rb);
+
+    cout<< isbuf.read_to_end(rb).get() << endl;
+
+    // save output
+    TiffIO tif;
+
+    tif.setResX(0.25);
+    tif.setResY(0.25);
+    tif.setResZ(1.00);
+
+    tif.setDataType(dataType);
+
+    //
+    tif.setDimx(sx);
+    tif.setDimy(sy);
+    tif.setDimz(sz);
+    tif.setDimc(3);
+    tif.setDimt(1);
+
+    //
+    tif.setData((void*)pOut);
+    tif.setFileName(const_cast<char*>(outFileName.c_str()));
+
+    //
+    tif.write();
+
+    //
+    del1dp<unsigned char>(p);
+    del1dp<unsigned char>(pOut);
+
+    //
+    return 0;
+}
+
+//
+int testSplitData()
+{
+    //
+
+    //
+    return 0;
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -698,21 +836,42 @@ int main(int argc, char *argv[])
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     //
-    std::cout<<"Parameters:"<<std::endl;
-    std::cout<<"a json file of the tile list: "<<FLAGS_tiles<<std::endl;
-    std::cout<<"server address: "<<FLAGS_server<<std::endl;
-    std::cout<<"uuid: "<<FLAGS_uuid<<std::endl;
-    std::cout<<"data name: "<<FLAGS_name<<std::endl;
+    if(FLAGS_test)
+    {
+        if(FLAGS_testOption==0)
+        {
+            return testReadWriteData(FLAGS_output, FLAGS_ch1, FLAGS_ch2);
+        }
+        else if(FLAGS_testOption==1)
+        {
 
+        }
+        else
+        {
+
+        }
+
+        //
+        return 0;
+    }
+
+    //
     string requestMethods = FLAGS_methods?"GET":"POST";
-    //std::cout<<"methods: "<<std::boolalpha<<FLAGS_methods<<std::endl;
-    std::cout<<"request methods: "<< requestMethods <<std::endl;
 
-    // tile list
+    //
     if(requestMethods == "POST")
     {
         // POST
         // time ./src/datamanagement -tiles ../data/tileList.json -server http://localhost:8000 -uuid 09a -name grayscale
+
+        //
+        std::cout<<"Parameters:"<<std::endl;
+        std::cout<<"a json file of the tile list: "<<FLAGS_tiles<<std::endl;
+        std::cout<<"server address: "<<FLAGS_server<<std::endl;
+        std::cout<<"uuid: "<<FLAGS_uuid<<std::endl;
+        std::cout<<"data name: "<<FLAGS_name<<std::endl;
+        //std::cout<<"methods: "<<std::boolalpha<<FLAGS_methods<<std::endl;
+        std::cout<<"request methods: "<< requestMethods <<std::endl;
 
         // load tiles info
         tileListType tiles;
@@ -750,6 +909,17 @@ int main(int argc, char *argv[])
     {
         // GET
         // time ./src/datamanagement -server http://localhost:8000 -uuid 09a -name grayscale -methods true -x 23040 -y 21344 -z 3264 -sx 640 -sy 736 -sz 544 -sc 2 -vsx 0.25 -vsy 0.25 -vsz 1.00 -output ./test.tif
+
+        //
+        std::cout<<"Parameters:"<<std::endl;
+        std::cout<<"server address: "<<FLAGS_server<<std::endl;
+        std::cout<<"uuid: "<<FLAGS_uuid<<std::endl;
+        std::cout<<"data name: "<<FLAGS_name<<std::endl;
+        std::cout<<"request methods: "<< requestMethods <<std::endl;
+        std::cout<<"offset: "<<FLAGS_x<<"_"<<FLAGS_y<<"_"<<FLAGS_z<<std::endl;
+        std::cout<<"size: "<<FLAGS_sx*FLAGS_sc*2<<"_"<<FLAGS_sy<<"_"<<FLAGS_sz<<std::endl;
+        std::cout<<"voxelsize: "<<FLAGS_vsx<<" "<<FLAGS_vsy<<" "<<FLAGS_vsz<<std::endl;
+        std::cout<<"output: "<<FLAGS_output<<std::endl;
 
         //
         if(FLAGS_output.substr(FLAGS_output.find_last_of(".") + 1) != "tif")
