@@ -575,7 +575,7 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
         tif.setDimx(sx);
         tif.setDimy(sy);
         tif.setDimz(sz);
-        tif.setDimc(1); // tif.setDimc(sc); // test the first channel
+        tif.setDimc(3); // tif.setDimc(sc);
         tif.setDimt(1);
 
         //
