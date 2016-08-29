@@ -36,8 +36,8 @@ public:
     ~DataManager();
 
 public:
-    int upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long bx, long by, long bz, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ);
-    int loadTile(unsigned char *&p, string ch1, string ch2, long bx, long by, long bz, long bufSizeX, long bufSizeY, long bufSizeZ);
+    int upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ);
+    int loadTile(unsigned char *&p, string ch1, string ch2, long bufSizeX, long bufSizeY, long bufSizeZ);
     int findNode(tileListType tiles, long xoff, long yoff, long zoff);
     void computeOffset(tileListType &tiles);
     int saveTile(string outFileName, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, int dataType);

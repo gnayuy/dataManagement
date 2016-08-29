@@ -55,7 +55,7 @@ void DataManager::clearData()
     del1dp<unsigned char>(m_Data);
 }
 
-int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long bx, long by, long bz, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ)
+int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ)
 {
     if(buffer!=NULL)
     {
@@ -226,7 +226,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                 long by = jj*tsy;
                                 long bz = kk*tsz;
                                 unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
-                                loadTile(buf, tiles[n].ch1, tiles[n].ch2, bx, by, bz, bufX, bufY, bufZ);
+                                loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufX, bufY, bufZ);
                             }
 
                         }
@@ -266,7 +266,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                 long by = jj*csy;
                                 long bz = kk*csz;
                                 unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
-                                if(upstreaming(client, queryPath, buf, bx, by, bz, csx, csy, csz, bufX, bufY, bufZ))
+                                if(upstreaming(client, queryPath, buf, csx, csy, csz, bufX, bufY, bufZ))
                                 {
                                     cout<<"Fail to upstreaming data to the server"<<endl;
                                     return -1;
@@ -286,10 +286,8 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     return 0;
 }
 
-int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bx, long by, long bz, long bufSizeX, long bufSizeY, long bufSizeZ)
+int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bufSizeX, long bufSizeY, long bufSizeZ)
 {
-    cout<<ch1<<" "<<bx<<" "<<by<<" "<<bz<<endl;
-
     // load ch1 and ch2
     TiffIO tiff1, tiff2;
 
@@ -325,6 +323,12 @@ int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bx, lo
         return -1;
     }
 
+    if(bufSizeX<sx || bufSizeY<sy || bufSizeZ<sz)
+    {
+        cout<<"Incorrect size of buffer"<<endl;
+        return -1;
+    }
+
     // interleaved RG copy to p
     if(datatype==USHORT)
     {
@@ -335,8 +339,6 @@ int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bx, lo
 
         // buffer size designed for byte data
         bufSizeX /= 2;
-        bufSizeY /= 2;
-        bufSizeZ /= 2;
 
         //
         for(z=0; z<sz; z++)
