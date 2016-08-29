@@ -113,8 +113,7 @@ int DataManager::upstreaming(http_client client, uri_builder builder, unsigned c
                     long oy = oz + j*bufSizeX;
                     for(long i=0; i<sx; i++)
                     {
-                        unsigned char val = buffer[offy+i];
-                        p[oy+i] = val;
+                        p[offy+i] = buffer[oy+i];
                     }
                 }
             }
@@ -216,6 +215,8 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
     offChunkY = bufLUT[bufNumber].offChunkY;
     offChunkZ = bufLUT[bufNumber].offChunkZ;
 
+    cout<<offTileX<<" "<<offTileY<<" "<<offTileZ<<endl;
+
     // find tile and fill the buffer
     unsigned char *buffer = NULL;
     for(long ii=0; ii<1; ii++)
@@ -267,7 +268,7 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
                     otz = offChunkZ + kk;
                     offz = bb_bz + otz*csz;
 
-                    cout<<otx<<" "<<oty<<" "<<otz<<" "<<offx<<" "<<offy<<" "<<offz<<endl;
+                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<offx<<"_"<<offy<<"_"<<offz<<endl;
 
                     string offsetpath = std::to_string(offx);
                     offsetpath.append("_");
