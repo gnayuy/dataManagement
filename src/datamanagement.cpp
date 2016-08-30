@@ -1096,6 +1096,88 @@ int testSplitData()
     return 0;
 }
 
+int testBufferMap(string tilesFile)
+{
+    // load tiles info
+    tileListType tiles;
+
+    if(FLAGS_tiles.substr(tilesFile.find_last_of(".") + 1) == "json")
+    {
+        std::ifstream f(FLAGS_tiles);
+        json::value j = json::value::parse(f);
+
+        json::value ja = j[U("tile")];
+
+        for(auto val : ja.as_array())
+        {
+            Tile t;
+            t.uuid = val[U("uuid")].as_string();
+            t.ch1 = val[U("ch1")].as_string();
+            t.ch2 = val[U("ch2")].as_string();
+            t.octreepath = val[U("octreepath")].as_string();
+
+            tiles.push_back(t);
+        }
+    }
+    else
+    {
+        std::cout<<"Invalid tile list file!"<<endl;
+        return -1;
+    }
+
+    //
+    DataManager dataManager;
+    dataManager.computeOffset(tiles);
+    dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3);
+
+    //
+    bool hasData = false;
+
+    //
+    for(long i=0; i<dataManager.bufLUT.size(); i++)
+    {
+        //
+        //cout<<"Buffer #"<<i<<":"<<endl;
+
+        //
+        long otx, oty, otz;
+
+        // find tile and fill the buffer
+        unsigned char *buffer = NULL;
+        for(long ii=0; ii<1; ii++)
+        {
+            otx = dataManager.bufLUT[i].offTileX + ii;
+            for(long jj=0; jj<4; jj++)
+            {
+                oty = dataManager.bufLUT[i].offTileY + jj;
+                for(long kk=0; kk<8; kk++)
+                {
+                    otz = dataManager.bufLUT[i].offTileZ + kk;
+
+                    //
+                    int n = dataManager.findNode(tiles, otx, oty, otz);
+                    if(n>=0)
+                    {
+                        //cout<<" - "<<otx<<" "<<oty<<" "<<otz<<" : "<<tiles[n].octreepath<<endl;
+                        hasData = true;
+                        continue;
+                    }
+
+                }
+            }
+        }
+
+        if(hasData)
+        {
+            cout<<i<<endl;
+            hasData = false;
+        }
+    }
+
+    //
+    return 0;
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -1119,71 +1201,7 @@ int main(int argc, char *argv[])
         else if(FLAGS_testOption==2)
         {
             // time ./src/datamanagement -test true -testOption 2 -tiles ../data/tileList.json
-
-            // load tiles info
-            tileListType tiles;
-
-            if(FLAGS_tiles.substr(FLAGS_tiles.find_last_of(".") + 1) == "json")
-            {
-                std::ifstream f(FLAGS_tiles);
-                json::value j = json::value::parse(f);
-
-                json::value ja = j[U("tile")];
-
-                for(auto val : ja.as_array())
-                {
-                    Tile t;
-                    t.uuid = val[U("uuid")].as_string();
-                    t.ch1 = val[U("ch1")].as_string();
-                    t.ch2 = val[U("ch2")].as_string();
-                    t.octreepath = val[U("octreepath")].as_string();
-
-                    tiles.push_back(t);
-                }
-            }
-            else
-            {
-                std::cout<<"Invalid tile list file!"<<endl;
-                return -1;
-            }
-
-            //
-            DataManager dataManager;
-            dataManager.computeOffset(tiles);
-            dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3);
-
-            //
-            for(long i=0; i<dataManager.bufLUT.size(); i++)
-            {
-                //
-                cout<<"Buffer #"<<i<<":"<<endl;
-
-                //
-                long otx, oty, otz;
-
-                // find tile and fill the buffer
-                unsigned char *buffer = NULL;
-                for(long ii=0; ii<1; ii++)
-                {
-                    otx = dataManager.bufLUT[i].offTileX + ii;
-                    for(long jj=0; jj<4; jj++)
-                    {
-                        oty = dataManager.bufLUT[i].offTileY + jj;
-                        for(long kk=0; kk<8; kk++)
-                        {
-                            otz = dataManager.bufLUT[i].offTileZ + kk;
-
-                            //
-                            int n = dataManager.findNode(tiles, otx, oty, otz);
-                            if(n>=0)
-                            {
-                                cout<<" - "<<otx<<" "<<oty<<" "<<otz<<" : "<<tiles[n].octreepath<<endl;
-                            }
-
-                        }
-                    }
-                }
-            }
+            testBufferMap(FLAGS_tiles);
 
         }
         else
