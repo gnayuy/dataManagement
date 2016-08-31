@@ -183,23 +183,12 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
     // Least Common Multiple (dim, 32)
     long tsx = 640, tsy = 552, tsz = 204;
     long csx = 640, csy = 736, csz = 544;
-    long level1;
-    long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx;
+    long offz, offy, offx;
     long offTileX, offTileY, offTileZ, otx, oty, otz;
     long offChunkX, offChunkY, offChunkZ;
     long bufX, bufY, bufZ;
 
     //
-    level1 = 3; // pick branch 3
-
-    bb_bx = 0;
-    bb_by = 32*tsy;
-    bb_bz = 0;
-
-    bb_ex = 32*tsx;
-    bb_ey = 64*tsy;
-    bb_ez = 32*tsz;
-
     bufX = tsx*4;
     bufY = tsy*4;
     bufZ = tsz*8;
@@ -258,15 +247,15 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
         for(long ii=0; ii<4; ii++)
         {
             otx = offChunkX + ii;
-            offx = bb_bx + otx*csx;
+            offx = otx*csx;
             for(long jj=0; jj<3; jj++)
             {
                 oty = offChunkY + jj;
-                offy = bb_by + oty*csy;
+                offy = oty*csy;
                 for(long kk=0; kk<3; kk++)
                 {
                     otz = offChunkZ + kk;
-                    offz = bb_bz + otz*csz;
+                    offz = otz*csz;
 
                     cout<<otx<<" "<<oty<<" "<<otz<<" : "<<offx<<"_"<<offy<<"_"<<offz<<endl;
 
@@ -311,7 +300,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     builder.append_path(uuid);
     builder.append_path(U("/"));
     builder.append_path(dataName);
-    builder.append_path(U("/raw/0_1_2/640_736_544/"));
+    builder.append_path(U("/raw/0_1_2/640_736_544/")); // hard coded csx_csy_csz here, modify later!
 
     cout<<builder.to_string()<<endl;
 
@@ -839,10 +828,57 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
     return 0;
 }
 
-void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ,
-                               long blocksX, long blocksY, long blocksZ,
-                               long chunksX, long chunksY, long chunksZ)
+void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long blocksX, long blocksY, long blocksZ, long chunksX, long chunksY, long chunksZ, int branch)
 {
+    //
+    long ioff, joff, koff;
+    switch(branch)
+    {
+    case 1:
+        ioff = 0;
+        joff = 0;
+        koff = 0;
+        break;
+    case 2:
+        ioff = tilesX;
+        joff = 0;
+        koff = 0;
+        break;
+    case 3:
+        ioff = 0;
+        joff = tilesY;
+        koff = 0;
+        break;
+    case 4:
+        ioff = tilesX;
+        joff = tilesY;
+        koff = 0;
+        break;
+    case 5:
+        ioff = 0;
+        joff = 0;
+        koff = tilesZ;
+        break;
+    case 6:
+        ioff = tilesX;
+        joff = 0;
+        koff = tilesZ;
+        break;
+    case 7:
+        ioff = 0;
+        joff = tilesY;
+        koff = tilesZ;
+        break;
+    case 8:
+        ioff = tilesX;
+        joff = tilesY;
+        koff = tilesZ;
+        break;
+    default:
+        cout<<"Invalid octree node!"<<endl;
+        break;
+    }
+
     //
     for(long i=0; i<tilesX; i+=blocksX)
     {
@@ -851,7 +887,7 @@ void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ,
             for(long k=0; k<tilesZ; k+=blocksZ)
             {
                 //
-                IndexBuffer ib(i, j + tilesY, k, i/blocksX * chunksX, j/blocksY * chunksY, k/blocksZ * chunksZ);
+                IndexBuffer ib(i+ioff, j+joff, k+koff, (i+ioff)/blocksX * chunksX, (j+joff)/blocksY * chunksY, (k+koff)/blocksZ * chunksZ);
 
                 bufLUT.push_back(ib);
             }
@@ -877,6 +913,7 @@ DEFINE_uint64(z, 1, "offset (voxels) in z axis");
 DEFINE_double(vsx, 1.0, "voxel size in x axis");
 DEFINE_double(vsy, 1.0, "voxel size in y axis");
 DEFINE_double(vsz, 1.0, "voxel size in z axis");
+DEFINE_uint64(branch, 0, "branch number of the first level of octree");
 
 //
 DEFINE_string(ch1, "", "1st color channel");
@@ -1162,7 +1199,7 @@ int testOctreePath(string tilesFile, string octreePath, long sx, long sy, long s
     return 0;
 }
 
-int testBufferMap(string tilesFile)
+int testBufferMap(string tilesFile, int branch)
 {
     // load tiles info
     tileListType tiles;
@@ -1194,7 +1231,7 @@ int testBufferMap(string tilesFile)
     //
     DataManager dataManager;
     dataManager.computeOffset(tiles);
-    dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3);
+    dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3, branch);
 
     //
     bool hasData = false;
@@ -1203,7 +1240,11 @@ int testBufferMap(string tilesFile)
     for(long i=0; i<dataManager.bufLUT.size(); i++)
     {
         //
-        //cout<<"Buffer #"<<i<<":"<<endl;
+        cout<<"Buffer #"<<i<<":"<<endl;
+
+        cout<<dataManager.bufLUT[i].offTileX<<" "<<dataManager.bufLUT[i].offTileY<<" "<<dataManager.bufLUT[i].offTileZ<<endl;
+        cout<<dataManager.bufLUT[i].offChunkX<<" "<<dataManager.bufLUT[i].offChunkY<<" "<<dataManager.bufLUT[i].offChunkZ<<endl;
+        cout<<endl;
 
         //
         long otx, oty, otz;
@@ -1235,7 +1276,7 @@ int testBufferMap(string tilesFile)
 
         if(hasData)
         {
-            cout<<i<<endl;
+            //cout<<i<<endl;
             hasData = false;
         }
     }
@@ -1266,8 +1307,8 @@ int main(int argc, char *argv[])
         }
         else if(FLAGS_testOption==2)
         {
-            // time ./src/datamanagement -test true -testOption 2 -tiles ../data/tileList.json
-            testBufferMap(FLAGS_tiles);
+            // time ./src/datamanagement -test true -testOption 2 -tiles ../data/tileList.json -branch 3
+            testBufferMap(FLAGS_tiles, FLAGS_branch);
 
         }
         else if(FLAGS_testOption==3)
@@ -1291,7 +1332,7 @@ int main(int argc, char *argv[])
     if(requestMethods == "POST")
     {
         // POST
-        // time ./src/datamanagement -tiles ../data/tileList.json -server http://localhost:8000 -uuid 09a -name grayscale
+        // time ./src/datamanagement -tiles ../data/tileList.json -server http://localhost:8000 -uuid 09a -name grayscale -branch 3 -buffer 0
 
         //
         std::cout<<"Parameters:"<<std::endl;
@@ -1333,7 +1374,7 @@ int main(int argc, char *argv[])
         DataManager dataManager;
         dataManager.computeOffset(tiles);
         //dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
-        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3);
+        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,  FLAGS_branch);
         dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
     }
     else

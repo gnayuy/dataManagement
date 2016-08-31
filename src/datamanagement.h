@@ -66,13 +66,18 @@ public:
     void clearData();
 
 public:
-    void setBufferLUT(long tilesX, long tilesY, long tilesZ,
-                      long blocksX, long blocksY, long blocksZ,
-                      long chunksX, long chunksY, long chunksZ);
+    void setBufferLUT(long tilesX, long tilesY, long tilesZ, long blocksX, long blocksY, long blocksZ, long chunksX, long chunksY, long chunksZ, int branch);
 
 public:
     unsigned char *m_Data;
     IndexBufferType bufLUT;
 };
+
+//
+// octree:
+// z=0 1 2  z=1  5 6
+//     3 4       7 8
+//
+//
 
 #endif // __DATAMANAGEMENT_H__
