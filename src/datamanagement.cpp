@@ -710,8 +710,14 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
         unsigned short *pData = (unsigned short*)(m_Data);
         unsigned short *p = NULL;
 
+        //
         new1dp<unsigned short, long>(p,size);
+        for(long i=0; i<size; i++)
+        {
+            p[i] = 0;
+        }
 
+        //
         for(long k=0; k<sz; k++)
         {
             long offk = k*sx*sy;
@@ -727,7 +733,6 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
                     {
                         p[c*chnsize + offj + i] = pData[offx+c];
                     }
-                    p[sc*chnsize + offj + i] = 0;
                 }
             }
         }
