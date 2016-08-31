@@ -374,4 +374,16 @@ private:
     TIFF* m_TiffImage;
 };
 
+// class Timer
+class Timer
+{
+public:
+    Timer();
+    void start();
+    double getEclipseTime() const;
+
+private:
+    struct timeval m_startTime;
+};
+
 #endif // __DATAIO_H__
