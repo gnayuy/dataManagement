@@ -1101,7 +1101,7 @@ int TiffIO::write()
                 break;
         }
         
-        TIFFSetField(tif, TIFFTAG_SOFTWARE, "ILIA"); // computer vision and visualization library
+        TIFFSetField(tif, TIFFTAG_SOFTWARE, "vigl"); //
         
         if ( scomponents > 3 )
         {
@@ -1167,8 +1167,8 @@ int TiffIO::write()
         // spacing
         if ( resx > 0 && resy > 0 )
         {
-            m_XRESOLUTION = 25.4 / resx;
-            m_YRESOLUTION = 25.4 / resy;
+            m_XRESOLUTION = resx / 0.254;
+            m_YRESOLUTION = resy / 0.254;
             
             TIFFSetField(tif, TIFFTAG_XRESOLUTION, m_XRESOLUTION);
             TIFFSetField(tif, TIFFTAG_YRESOLUTION, m_YRESOLUTION);
