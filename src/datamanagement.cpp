@@ -878,6 +878,7 @@ DEFINE_string(ch1, "", "1st color channel");
 DEFINE_string(ch2, "", "2nd color channel");
 DEFINE_bool(test, false, "test");
 DEFINE_uint64(testOption, 0, "test option");
+DEFINE_string(octreepath, "", "octree path (e.g. 3/1/6/2/2/1)");
 
 //
 int testReadWriteData(string outFileName, string ch1, string ch2)
@@ -1096,6 +1097,66 @@ int testSplitData()
     return 0;
 }
 
+int testOctreePath(string tilesFile, string octreePath, long sx, long sy, long sz)
+{
+    // load tiles info
+    tileListType tiles;
+
+    if(FLAGS_tiles.substr(tilesFile.find_last_of(".") + 1) == "json")
+    {
+        std::ifstream f(FLAGS_tiles);
+        json::value j = json::value::parse(f);
+
+        json::value ja = j[U("tile")];
+
+        for(auto val : ja.as_array())
+        {
+            Tile t;
+            t.uuid = val[U("uuid")].as_string();
+            t.ch1 = val[U("ch1")].as_string();
+            t.ch2 = val[U("ch2")].as_string();
+            t.octreepath = val[U("octreepath")].as_string();
+
+            tiles.push_back(t);
+        }
+    }
+    else
+    {
+        std::cout<<"Invalid tile list file!"<<endl;
+        return -1;
+    }
+
+    //
+    DataManager dataManager;
+    dataManager.computeOffset(tiles);
+
+    //
+    long size = tiles.size();
+    bool found = false;
+    for(long t=0; t<size; t++)
+    {
+        //
+        if(tiles[t].octreepath==octreePath)
+        {
+            found = true;
+
+            cout<<tiles[t].ch1<<endl;
+            cout<<tiles[t].ch2<<endl;
+            cout<<tiles[t].offTileX*sx*4<<"_"<<(tiles[t].offTileY+32)*sy<<"_"<<tiles[t].offTileZ*sz<<endl;
+
+            break;
+        }
+    }
+
+    if(!found)
+    {
+        cout<<"octree path "<<octreePath.c_str()<<" does not exist."<<endl;
+    }
+
+    //
+    return 0;
+}
+
 int testBufferMap(string tilesFile)
 {
     // load tiles info
@@ -1203,6 +1264,11 @@ int main(int argc, char *argv[])
             // time ./src/datamanagement -test true -testOption 2 -tiles ../data/tileList.json
             testBufferMap(FLAGS_tiles);
 
+        }
+        else if(FLAGS_testOption==2)
+        {
+            // time ./src/datamanagement -test true -testOption 3 -tiles ../data/tileList.json -sx 640 -sy 552 -sz 204 -octreepath 3/1/6/2/2/1
+            testOctreePath(FLAGS_tiles, FLAGS_octreepath, FLAGS_sx, FLAGS_sy, FLAGS_sz);
         }
         else
         {
