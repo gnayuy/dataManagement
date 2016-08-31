@@ -779,45 +779,107 @@ pplx::task<size_t> DataManager::httpGetAsync(http_client client, uri_builder bui
 int DataManager::getData(utility::string_t server, utility::string_t uuid, utility::string_t dataName, long xoff, long yoff, long zoff, long sx, long sy, long sz, long sc, float vsx, float vsy, float vsz, string outFileName)
 {
     //
-    string sizePath = std::to_string(sx*4);
-    sizePath.append("_");
-    sizePath.append(std::to_string(sy));
-    sizePath.append("_");
-    sizePath.append(std::to_string(sz));
-
-    string offsetPath = std::to_string(xoff);
-    offsetPath.append("_");
-    offsetPath.append(std::to_string(yoff));
-    offsetPath.append("_");
-    offsetPath.append(std::to_string(zoff));
-
-    // client
-    http::uri uri = http::uri(server);
-    http_client client(uri);
-
-    http::uri_builder builder(U("/api/node/"));
-    builder.append_path(uuid);
-    builder.append_path(U("/"));
-    builder.append_path(dataName);
-    builder.append_path(U("/raw/0_1_2/"));
-    builder.append_path(sizePath);
-    builder.append_path(U("/"));
-    builder.append_path(offsetPath);
-
-    cout<<builder.to_string()<<endl;
+    Timer timer;
 
     //
-    long size = 4*sx*sy*sz; // in bytes
-    new1dp<unsigned char, long>(m_Data, size);
-    rawptr_buffer<unsigned char> rawBuf(m_Data, size);
-    //concurrency::streams::ostream stream(rawBuf);
+    if(sz>1)
+    {
+        // 3D block data
 
-    cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
+        //
+        string sizePath = std::to_string(sx*4);
+        sizePath.append("_");
+        sizePath.append(std::to_string(sy));
+        sizePath.append("_");
+        sizePath.append(std::to_string(sz));
 
-    // GET data
-    httpGetAsync(client, builder, rawBuf).wait();
+        string offsetPath = std::to_string(xoff);
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(yoff));
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(zoff));
 
-    cout<<"download data from the server"<<endl;
+        // client
+        http::uri uri = http::uri(server);
+        http_client client(uri);
+
+        http::uri_builder builder(U("/api/node/"));
+        builder.append_path(uuid);
+        builder.append_path(U("/"));
+        builder.append_path(dataName);
+        builder.append_path(U("/raw/0_1_2/"));
+        builder.append_path(sizePath);
+        builder.append_path(U("/"));
+        builder.append_path(offsetPath);
+
+        cout<<builder.to_string()<<endl;
+
+        //
+        timer.start();
+
+        //
+        long size = 4*sx*sy*sz; // in bytes
+        new1dp<unsigned char, long>(m_Data, size);
+        rawptr_buffer<unsigned char> rawBuf(m_Data, size);
+        //concurrency::streams::ostream stream(rawBuf);
+
+        cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
+
+        // GET data
+        httpGetAsync(client, builder, rawBuf).wait();
+
+        cout<<"download data from the server in "<<timer.getEclipseTime()<<" ms. "<<endl;
+
+    }
+    else if(sz==1)
+    {
+        // 2D slice data
+
+        //
+        string sizePath = std::to_string(sx*4);
+        sizePath.append("_");
+        sizePath.append(std::to_string(sy));
+
+        string offsetPath = std::to_string(xoff);
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(yoff));
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(zoff));
+
+        // client
+        http::uri uri = http::uri(server);
+        http_client client(uri);
+
+        http::uri_builder builder(U("/api/node/"));
+        builder.append_path(uuid);
+        builder.append_path(U("/"));
+        builder.append_path(dataName);
+        builder.append_path(U("/raw/0_1/"));
+        builder.append_path(sizePath);
+        builder.append_path(U("/"));
+        builder.append_path(offsetPath);
+
+        cout<<builder.to_string()<<endl;
+
+        //
+        timer.start();
+        //
+        long size = 4*sx*sy*sz; // in bytes
+        new1dp<unsigned char, long>(m_Data, size);
+        rawptr_buffer<unsigned char> rawBuf(m_Data, size);
+
+        cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
+
+        // GET data
+        httpGetAsync(client, builder, rawBuf).wait();
+
+        cout<<"download data from the server in "<<timer.getEclipseTime()<<" ms. "<<endl;
+    }
+    else
+    {
+        cout<<"Invalid size!"<<endl;
+        return -1;
+    }
 
     // save as a tiff
     saveTile(outFileName, sx, sy, sz, sc, vsx, vsy, vsz, USHORT);
