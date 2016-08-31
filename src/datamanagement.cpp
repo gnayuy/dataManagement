@@ -1184,7 +1184,7 @@ int testOctreePath(string tilesFile, string octreePath, long sx, long sy, long s
 
             cout<<tiles[t].ch1<<endl;
             cout<<tiles[t].ch2<<endl;
-            cout<<tiles[t].offTileX*sx*4<<"_"<<(tiles[t].offTileY+32)*sy<<"_"<<tiles[t].offTileZ*sz<<endl;
+            cout<<tiles[t].offTileX*sx*4<<"_"<<tiles[t].offTileY*sy<<"_"<<tiles[t].offTileZ*sz<<endl;
 
             break;
         }
