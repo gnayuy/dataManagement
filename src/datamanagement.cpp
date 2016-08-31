@@ -1265,7 +1265,7 @@ int main(int argc, char *argv[])
             testBufferMap(FLAGS_tiles);
 
         }
-        else if(FLAGS_testOption==2)
+        else if(FLAGS_testOption==3)
         {
             // time ./src/datamanagement -test true -testOption 3 -tiles ../data/tileList.json -sx 640 -sy 552 -sz 204 -octreepath 3/1/6/2/2/1
             testOctreePath(FLAGS_tiles, FLAGS_octreepath, FLAGS_sx, FLAGS_sy, FLAGS_sz);
