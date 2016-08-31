@@ -22,7 +22,7 @@ dvid -rpc=:7401 repo $UUID new uint8blk grayscale VoxelSize=250.02763671875,251.
 # value=mouselight_2015_07_11_johan.json
 #
 
-dvid-rpc=:7401 repo $UUID new keyvalue metadata
+dvid -rpc=:7401 repo $UUID new keyvalue metadata
 #Data "metadata" [keyvalue] added to node cd0052dee0db43f89270ba1b0d98ca57
 #
 # http://localhost:8000/api/node/cd0/metadata/info
