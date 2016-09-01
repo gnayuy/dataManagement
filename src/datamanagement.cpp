@@ -1436,7 +1436,7 @@ int main(int argc, char *argv[])
         DataManager dataManager;
         dataManager.computeOffset(tiles);
         //dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
-        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,  FLAGS_branch);
+        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,FLAGS_branch); // customized for specific data size here
         dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
     }
     else
