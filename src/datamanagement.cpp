@@ -1347,6 +1347,122 @@ int testBufferMap(string tilesFile, int branch)
     return 0;
 }
 
+int testStreamData(string server, string uuid, string dataName, long x, long y, long z, long sx, long sy, long sz)
+{
+    //
+    long size = 4*sx*sy*sz; // in bytes
+    unsigned char *p = NULL;
+    new1dp<unsigned char, long>(p, size);
+    memset(p, 0, size);
+
+    //
+    if(sz>1)
+    {
+        // 3D block data
+
+        //
+        string sizePath = std::to_string(sx*4);
+        sizePath.append("_");
+        sizePath.append(std::to_string(sy));
+        sizePath.append("_");
+        sizePath.append(std::to_string(sz));
+
+        string offsetPath = std::to_string(x);
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(y));
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(z));
+
+        // client
+        http::uri_builder builder(U("/api/node/"));
+        builder.append_path(uuid);
+        builder.append_path(U("/"));
+        builder.append_path(dataName);
+        builder.append_path(U("/raw/0_1_2/"));
+        builder.append_path(sizePath);
+        builder.append_path(U("/"));
+        builder.append_path(offsetPath);
+
+        cout<<builder.to_string()<<endl;
+
+        http::uri uri = http::uri(server.append(builder.to_string()));
+        http_client client(uri);
+
+        //
+        concurrency::streams::producer_consumer_buffer<uint8_t> rwbuf;
+        auto ostr = concurrency::streams::ostream(rwbuf);
+
+        http_request msg(methods::GET);
+        msg.set_response_stream(ostr);
+        http_response rsp = client.request(msg).get();
+
+        rsp.content_ready().get();
+
+        cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<endl;
+
+        rwbuf.getn(p, rwbuf.in_avail()).get();
+
+        for(int x=0; x<16; x++)
+            cout<<p[x]<<" ";
+        cout<<endl;
+    }
+    else if(sz==1)
+    {
+        // 2D slice data
+
+        //
+        string sizePath = std::to_string(sx*4);
+        sizePath.append("_");
+        sizePath.append(std::to_string(sy));
+
+        string offsetPath = std::to_string(x);
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(y));
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(z));
+
+        // client
+        http::uri_builder builder(U("/api/node/"));
+        builder.append_path(uuid);
+        builder.append_path(U("/"));
+        builder.append_path(dataName);
+        builder.append_path(U("/raw/0_1/"));
+        builder.append_path(sizePath);
+        builder.append_path(U("/"));
+        builder.append_path(offsetPath);
+        cout<<builder.to_string()<<endl;
+
+        http::uri uri = http::uri(server.append(builder.to_string()));
+        http_client client(uri);
+
+        //
+        concurrency::streams::producer_consumer_buffer<uint8_t> rwbuf;
+        auto ostr = concurrency::streams::ostream(rwbuf);
+
+        http_request msg(methods::GET);
+        msg.set_response_stream(ostr);
+        http_response rsp = client.request(msg).get();
+
+        rsp.content_ready().get();
+
+        cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<endl;
+
+        rwbuf.getn(p, rwbuf.in_avail()).get();
+
+        for(int x=0; x<16; x++)
+            cout<<p[x]<<" ";
+        cout<<endl;
+    }
+    else
+    {
+        cout<<"Invalid size!"<<endl;
+        return -1;
+    }
+
+    //
+    return 0;
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -1377,6 +1493,11 @@ int main(int argc, char *argv[])
         {
             // time ./src/datamanagement -test true -testOption 3 -tiles ../data/tileList.json -sx 640 -sy 552 -sz 204 -octreepath 3/1/6/2/2/1
             testOctreePath(FLAGS_tiles, FLAGS_octreepath, FLAGS_sx, FLAGS_sy, FLAGS_sz);
+        }
+        else if(FLAGS_testOption==4)
+        {
+            // time ./src/datamanagement -test true -testOption 4 -server http://tem-dvid:7400 -uuid 0dd -name grayscale -methods true -x 53760 -y 17664 -z 5100 -sx 1024 -sy 1024 -sz 2
+            testStreamData(FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_x, FLAGS_y, FLAGS_z, FLAGS_sx, FLAGS_sy, FLAGS_sz);
         }
         else
         {
