@@ -19,8 +19,8 @@ dataManagement use rest api to read/write multiple channel 3D image stacks via H
 ```
 Data can also be uploaded to DVID branch by branch and buffer by buffer.
 ```
-  // POST Data
-  % dataManagement -tiles <tilelist> -server <url:port> -uuid <uuid> -name <dataname> -methods <POST> -branch <branch#> -buffer <buffer #>
+  // POST a data buffer
+  % dataManagement -tiles <tilelist> -server <url:port> -uuid <uuid> -name <dataname> -methods <POST> -branch <branch #> -buffer <buffer #>
 ```
 By default, "methods" set as "POST" and the tile list is required.
   
