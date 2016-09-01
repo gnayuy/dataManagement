@@ -30,6 +30,9 @@ using namespace std;
 #include <tiffio.h>
 
 //
+#include <png.h>
+
+//
 #ifdef Use_OpenMP
 #include <omp.h>
 #endif
