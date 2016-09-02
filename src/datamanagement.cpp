@@ -55,6 +55,17 @@ IndexBuffer::~IndexBuffer()
 
 }
 
+// class Block
+Block::Block()
+{
+
+}
+
+Block::~Block()
+{
+
+}
+
 // class DataManager
 DataManager::DataManager()
 {
@@ -1536,6 +1547,218 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
     return 0;
 }
 
+int testMultipleBlockStream(string server, string uuid, string dataName)
+{
+    BlockList blocks;
+
+    // create simulated data
+
+    // 128x128x128
+    // 20736_17664_5100
+
+    long sx = 8192;
+    long sy = 1616;
+    long sz = 624;
+
+    long xoff = 20736;
+    long yoff = 17664;
+    long zoff = 5100;
+
+    //
+    for(int i=0; i<32; i++)
+    {
+        Block b;
+
+        b.sx = 128;
+        b.sy = 128;
+        b.sz = 128;
+
+        b.box = 128 * i;
+        b.boy = i*48;
+        b.boz = i*16;
+
+        b.ox = xoff + b.box*4; // uint16 + 2 colors
+        b.oy = yoff + b.boy;
+        b.oz = zoff + b.boz;
+
+        blocks.push_back(b);
+    }
+
+    long n = blocks.size() - 1;
+
+    for(int i=0; i<32; i++)
+    {
+        Block b;
+
+        b.sx = 128;
+        b.sy = 128;
+        b.sz = 128;
+
+        b.ox = blocks[n].ox + 128*4;
+        b.oy = blocks[n].oy - 32;
+        b.oz = blocks[n].oz - 12;
+
+        b.box = blocks[n].box + 128;
+        b.boy = blocks[n].boy - 32;
+        b.boz = blocks[n].boz - 12;
+
+        n++;
+
+        blocks.push_back(b);
+    }
+
+    cout<<blocks.size()<<endl;
+
+    //
+    long size = 4*128*128*128; // in bytes
+    unsigned char *p = NULL;
+    new1dp<unsigned char, long>(p, size);
+
+    //
+    long chnsize = sx*2*sy*sz; // uint16
+    long sizeBuffer = chnsize; // 1st color channel
+    unsigned char *pBuffer = NULL;
+    new1dp<unsigned char, long>(pBuffer, sizeBuffer);
+    memset(pBuffer, 0, sizeBuffer);
+
+    //
+    Timer timer;
+    timer.start();
+
+    string dvidserver;
+
+
+
+    //
+    for(int iblk=0; iblk<blocks.size(); iblk++)
+    {
+        //
+        dvidserver = server;
+
+        //
+        string sizePath = std::to_string(128*4);
+        sizePath.append("_");
+        sizePath.append(std::to_string(128));
+        sizePath.append("_");
+        sizePath.append(std::to_string(128));
+
+        string offsetPath = std::to_string(blocks[iblk].ox);
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(blocks[iblk].oy));
+        offsetPath.append("_");
+        offsetPath.append(std::to_string(blocks[iblk].oz));
+
+        // client
+        http::uri_builder builder(U("/api/node/"));
+        builder.append_path(uuid);
+        builder.append_path(U("/"));
+        builder.append_path(dataName);
+        builder.append_path(U("/raw/0_1_2/"));
+        builder.append_path(sizePath);
+        builder.append_path(U("/"));
+        builder.append_path(offsetPath);
+
+        http::uri uri = http::uri(dvidserver.append(builder.to_string()));
+        http_client client(uri);
+
+        cout<<uri.to_string()<<endl;
+
+        //
+        memset(p, 0, size);
+
+        //
+        concurrency::streams::producer_consumer_buffer<uint8_t> rwbuf;
+        auto ostr = concurrency::streams::ostream(rwbuf);
+
+        http_request msg(methods::GET);
+        msg.set_response_stream(ostr);
+        http_response rsp = client.request(msg).get();
+
+        rsp.content_ready().get();
+
+        cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<endl;
+
+        rwbuf.getn(p, rwbuf.in_avail()).get();
+
+        //
+        unsigned short *pData = (unsigned short*)(pBuffer);
+        unsigned short *pIn = (unsigned short*)(p);
+
+        //
+        //cout<<iblk<<" "<<blocks[iblk].box + 128 << " " << blocks[iblk].boy + 128 << " " <<blocks[iblk].boz + 128 <<" "<<pIn[15]<<endl;
+
+        //
+        for(long k=0; k<128; k++)
+        {
+            long offk = (k+blocks[iblk].boz)*sx*sy;
+            long offz = k*128*128*2;
+            for(long j=0; j<128; j++)
+            {
+                long offj = offk + (j+blocks[iblk].boy)*sx;
+                long offy = offz + j*128*2;
+                for(long i=0; i<128; i++)
+                {
+                    pData[offj + i + blocks[iblk].box] = pIn[offy + i*2];
+                }
+            }
+        }
+
+        //
+        cout<<"save 1st color to the buffer"<<endl;
+
+        //
+        rwbuf.close();
+
+    }
+
+    cout<<"download data from the server in "<<timer.getEclipseTime()<<" ms. "<<endl;
+
+    //
+    unsigned short *pData = (unsigned short*)(pBuffer);
+    for(long j=0; j<sx*sy; j++)
+    {
+        for(long k=0; k<sz; k++)
+        {
+            if( pData[j] < pData[k*sx*sy + j])
+            {
+                pData[j] = pData[k*sx*sy + j];
+            }
+        }
+    }
+
+    //
+    TiffIO tif;
+
+    tif.setResX(0.25f);
+    tif.setResY(0.25f);
+    tif.setResZ(1.00f);
+
+    tif.setDataType(USHORT);
+
+    //
+    tif.setDimx(sx);
+    tif.setDimy(sy);
+    tif.setDimz(1); // mip
+    tif.setDimc(1);
+    tif.setDimt(1);
+
+    //
+    tif.setData((void*)pBuffer);
+    tif.setFileName(const_cast<char *>("./testMultipleBlockStream.tif"));
+
+    //
+    tif.write();
+
+    //
+    del1dp<unsigned char>(p);
+
+    //
+    del1dp<unsigned char>(pBuffer);
+
+    //
+    return 0;
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -1571,6 +1794,11 @@ int main(int argc, char *argv[])
         {
             // time ./src/datamanagement -test true -testOption 4 -server http://tem-dvid:7400 -uuid 0dd -name grayscale -methods true -x 53760 -y 17664 -z 5100 -sx 1024 -sy 1024 -sz 2
             testStreamData(FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_x, FLAGS_y, FLAGS_z, FLAGS_sx, FLAGS_sy, FLAGS_sz);
+        }
+        else if(FLAGS_testOption==5)
+        {
+            // time ./src/datamanagement -test true -testOption 5 -server http://tem-dvid:7400 -uuid 0dd -name grayscale -methods true
+            testMultipleBlockStream(FLAGS_server, FLAGS_uuid, FLAGS_name);
         }
         else
         {

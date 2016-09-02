@@ -43,6 +43,21 @@ public:
 typedef std::vector<IndexBuffer> IndexBufferType;
 
 //
+class Block
+{
+public:
+    Block();
+    ~Block();
+
+public:
+    long sx, sy, sz; // block size
+    long ox, oy, oz; // block offset in database
+    long box, boy, boz; // block offset in buffer
+};
+
+typedef std::vector<Block> BlockList;
+
+//
 class DataManager
 {
 public:
