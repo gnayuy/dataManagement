@@ -8,7 +8,7 @@ Install [C++ REST SDK][] for using REST API and reading/writing JSON file. To co
 
 Install [gflags][] for using the command lines.
 
-To support 2D slice image streaming to/from DVID, [libpng][] is required. In this project, we use [loadpng][] to decode png images.
+To support 2D slice image streaming to/from DVID, [libpng][] is required. In this project, we use [lodepng][] to decode png images.
 
 ## api
 dataManagement use rest api to read/write multiple channel 3D image stacks via HTTP server:
