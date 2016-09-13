@@ -28,7 +28,7 @@ By default, "methods" set as "POST" and the tile list is required.
   
 ##
 
-[LibTIFF]: http://www.remotesensing.org/libtiff
+[LibTIFF]: http://libtiff.org
 [C++ REST SDK]:https://github.com/Microsoft/cpprestsdk
 [gflags]: https://github.com/gflags/gflags
 [boost]:http://www.boost.org
