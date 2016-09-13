@@ -11,10 +11,12 @@ SET( datamanagement_sources
 # header files
     ${PROJECT_SOURCE_DIR}/src/dataio.h
     ${PROJECT_SOURCE_DIR}/src/datamanagement.h
+    ${PROJECT_SOURCE_DIR}/src/png/lodepng.h
 
 # source files
     ${PROJECT_SOURCE_DIR}/src/dataio.cpp
     ${PROJECT_SOURCE_DIR}/src/datamanagement.cpp
+    ${PROJECT_SOURCE_DIR}/src/png/lodepng.cpp
 )
 
 # cpprest

@@ -1458,7 +1458,10 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         rwbuf.getn(p, rwbuf.in_avail()).get();
 
         for(int x=0; x<16; x++)
+        {
+            //cout<<((unsigned short*)p)[x]<<" ";
             cout<<p[x]<<" ";
+        }
         cout<<endl;
     }
     else if(sz==1)
@@ -1502,46 +1505,111 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
 
         cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<endl;
 
-        new1dp<unsigned char, long>(p, rwbuf.in_avail());
-        //memset(p, 0, rwbuf.in_avail());
+        long szbuf = rwbuf.in_avail();
 
-        rwbuf.getn(p, rwbuf.in_avail()).get();
+        new1dp<unsigned char, long>(p, szbuf);
+        memset(p, 0, szbuf);
 
-//        png_image pngImage;
-//        memset(&pngImage, 0, (sizeof pngImage));
-//        pngImage.version = PNG_IMAGE_VERSION;
-//        if(png_image_begin_read_from_memory(&pngImage, (void*)p, rwbuf.in_avail())!=0)
+        rwbuf.getn(p, szbuf).get();
+
+        //
+        const char* filename = "./tile2D.tif";
+
+//        FILE *fp;
+//        fp=fopen(filename, "wb");
+//        fwrite(p, szbuf, szbuf, fp);
+//        fclose(fp);
+
+        std::vector<unsigned char> png;
+        for(int i=0; i<szbuf; i++)
+        {
+            png.push_back(p[i]);
+        }
+
+        std::vector<unsigned char> image;
+        unsigned w,h;
+        unsigned error = lodepng::decode(image, w, h, png);
+        if(error)
+        {
+            std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+        }
+        else
+        {
+            cout<<w<<" = 4*"<<sx<<", "<<h<<" = "<<sy<<", "<<szbuf<<" < "<<w*h<<endl;
+        }
+
+//        error = lodepng::encode(filename, image, w, h);
+//        if(error)
 //        {
-//            cout<<"successful read"<<endl;
-//        }
-//        else
-//        {
-//            cout<<"failed to read png from the memory"<<endl;
+//            std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 //        }
 
-//        if(png_image_begin_read_from_stdio(&pngImage, (FILE*)p)!=0)
-//        {
-//            cout<<"!=0"<<endl;
-//        }
-//        else
-//        {
-//            cout<<"==0"<<endl;
-//        }
+        //
+        long szImage = w*h;
+        unsigned char *pImg = NULL;
+        new1dp<unsigned char, unsigned>(pImg, szImage);
+        unsigned short *pIn = (unsigned short *)(pImg);
 
-//        png_structrp png_ptr;
-//        png_read_image(png_ptr, (png_bytepp)p);
+        for(long i=0; i<szImage; i++)
+        {
+            pImg[i] = image[i];
+        }
 
-        //cout<<PNG_IMAGE_SIZE(pngImage)<<endl;
+        unsigned short *pOut = NULL;
+        new1dp<unsigned short, long>(pOut, 3*sx*sy);
 
-//        for(int x=0; x<16; x++)
-//            cout<<p[x]<<" ";
-//        cout<<endl;
+        long offc = sx*sy;
+
+        for(long j=0; j<sy; j++)
+        {
+            long offy = j*sx;
+            for(long i=0; i<sx; i++)
+            {
+                pOut[offy+i] = pIn[2*offy + 2*i];
+                pOut[offy+i+offc] = pIn[2*offy+2*i+1];
+            }
+        }
+
+        // save output
+        TiffIO tif;
+
+        tif.setResX(0.25);
+        tif.setResY(0.25);
+        tif.setResZ(1.00);
+
+        tif.setDataType(USHORT);
+
+        //
+        tif.setDimx(sx);
+        tif.setDimy(sy);
+        tif.setDimz(sz);
+        tif.setDimc(3);
+        tif.setDimt(1);
+
+        //
+        tif.setData((void*)pOut);
+        tif.setFileName(const_cast<char*>(filename));
+
+        //
+        tif.write();
+
+        //
+        for(int x=0; x<16; x++)
+            cout<<image[x]<<" ";
+        cout<<endl;
+
+        //
+        del1dp<unsigned char>(pImg);
+        del1dp<unsigned short>(pOut);
     }
     else
     {
         cout<<"Invalid size!"<<endl;
         return -1;
     }
+
+    //
+    del1dp<unsigned char>(p);
 
     //
     return 0;

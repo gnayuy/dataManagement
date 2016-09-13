@@ -7,6 +7,7 @@
 
 #include "dataio.h"
 #include <gflags/gflags.h>
+#include "png/lodepng.h"
 
 //
 class Image
