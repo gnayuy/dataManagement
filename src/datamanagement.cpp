@@ -1460,7 +1460,7 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         for(int x=0; x<16; x++)
         {
             //cout<<((unsigned short*)p)[x]<<" ";
-            cout<<p[x]<<" ";
+            cout<<int(p[x])<<" ";
         }
         cout<<endl;
     }
@@ -1497,13 +1497,18 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         concurrency::streams::producer_consumer_buffer<uint8_t> rwbuf;
         auto ostr = concurrency::streams::ostream(rwbuf);
 
+        //
+        Timer timer;
+        timer.start();
+
+        //
         http_request msg(methods::GET);
         msg.set_response_stream(ostr);
         http_response rsp = client.request(msg).get();
 
         rsp.content_ready().get();
 
-        cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<endl;
+        cout<<"size of data: "<<rwbuf.in_avail()<<" - "<<rwbuf.size()<<" costs: "<<timer.getEclipseTime()<<"ms"<<endl;
 
         long szbuf = rwbuf.in_avail();
 
@@ -1513,10 +1518,10 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         rwbuf.getn(p, szbuf).get();
 
         //
-        const char* filename = "./tile2D.tif";
+        const char* filename = "./tile2D.tif"; // .png
 
 //        FILE *fp;
-//        fp=fopen(filename, "wb");
+//        fp=fopen("./tile2Dtest.png", "wb");
 //        fwrite(p, szbuf, szbuf, fp);
 //        fclose(fp);
 
@@ -1550,9 +1555,10 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         new1dp<unsigned char, unsigned>(pImg, szImage);
         unsigned short *pIn = (unsigned short *)(pImg);
 
-        for(long i=0; i<szImage; i++)
+        for(long i=0; i<szImage; i+=2)
         {
-            pImg[i] = image[i];
+            pImg[i] = image[i+1];
+            pImg[i+1] = image[i];
         }
 
         unsigned short *pOut = NULL;
@@ -1595,7 +1601,7 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
 
         //
         for(int x=0; x<16; x++)
-            cout<<image[x]<<" ";
+            cout<<int(image[x])<<" ";
         cout<<endl;
 
         //
@@ -1694,8 +1700,6 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
     timer.start();
 
     string dvidserver;
-
-
 
     //
     for(int iblk=0; iblk<blocks.size(); iblk++)
@@ -1860,7 +1864,7 @@ int main(int argc, char *argv[])
         }
         else if(FLAGS_testOption==4)
         {
-            // time ./src/datamanagement -test true -testOption 4 -server http://tem-dvid:7400 -uuid 0dd -name grayscale -methods true -x 53760 -y 17664 -z 5100 -sx 1024 -sy 1024 -sz 2
+            // time ./src/datamanagement -test true -testOption 4 -server http://tem-dvid:7400 -uuid 0dd -name grayscale -methods true -x 53760 -y 17664 -z 5100 -sx 1024 -sy 256 -sz 1
             testStreamData(FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_x, FLAGS_y, FLAGS_z, FLAGS_sx, FLAGS_sy, FLAGS_sz);
         }
         else if(FLAGS_testOption==5)
