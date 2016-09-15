@@ -4,5 +4,5 @@
 nohup dvid -verbose serve $BUILDEM_DIR/config/config-august.toml
 
 ## shutdown
-dvid shutdown
+dvid -rpc=:7401 shutdown
 
