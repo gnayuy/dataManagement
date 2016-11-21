@@ -1,4 +1,4 @@
-//  /usr/local/bin/g++ -I /usr/local/include/pcl-1.8 -I /usr/local/include/eigen3 -L /usr/local/lib -o octree octree.cpp
+//  /usr/local/bin/g++ -I /usr/local/include/pcl-1.8 -I /usr/local/include/eigen3 -L /usr/local/lib -o octree_search octree_search.cpp
 
 #include <pcl/point_cloud.h>
 #include <pcl/octree/octree.h>
