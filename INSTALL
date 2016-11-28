@@ -7,14 +7,18 @@ PREFIX=$1
 
 export LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH
 
-# boost
+# boost 1.62
 
 sh bootstrap.sh --prefix=$PREFIX
 ./b2 install
 
-# openssl (https://wiki.openssl.org/index.php/Compilation_and_Installation)
+# openssl 1.0.2 (https://wiki.openssl.org/index.php/Compilation_and_Installation)
 
+## linux
 ./Configure shared linux-x86_64 --openssldir=$PREFIX 
+## mac
+./Configure shared darwin64-x86_64-cc
+
 make depend
 make
 make install
