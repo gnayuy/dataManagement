@@ -7,8 +7,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-
 using namespace std;
+
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 #include "../json/metainfo.h"
 
@@ -321,7 +323,7 @@ bool insideBB(string octreepath, float minX, float minY, float minZ, float maxX,
     float bz=koff*DZ*VZ;
     float ez=(koff+1)*DZ*VZ;
     
-    cout<<"test tile "<<bx<<" "<<ex<<" "<<by<<" "<<ey<<" "<<bz<<" "<<ez<<endl;
+    //cout<<"test tile "<<bx<<" "<<ex<<" "<<by<<" "<<ey<<" "<<bz<<" "<<ez<<endl;
     
     //
     if( (bx < maxX && ex > minX) && (by < maxY && ey > minY) && (bz < maxZ && ez > minZ) )
@@ -329,6 +331,108 @@ bool insideBB(string octreepath, float minX, float minY, float minZ, float maxX,
         return true;
     }else{
         return false;
+    }
+}
+
+//
+void printJSONValue(json::value v, string indent, bool isArray)
+{
+    string indented=indent;
+    
+    //
+    if(isArray)
+    {
+        cout << indent << "[" <<endl;
+    }
+    else
+    {
+        cout << indent << "{" <<endl;
+    }
+    
+    //
+    if (!v.is_null())
+    {
+        indented.append("    ");
+        
+        //
+        if(isArray)
+        {
+            for (auto &value : v.as_array())
+            {
+                if (value.is_object() || value.is_array())
+                {
+                    printJSONValue(value, indented, value.is_array());
+                }
+                else
+                {
+                    //
+                    if(value.is_double())
+                    {
+                        cout.precision(numeric_limits<double>::digits10 + 1);
+                        cout << value.as_double();
+                    }
+                    else if(v.is_integer())
+                    {
+                        cout << value.as_integer();
+                    }
+                    else
+                    {
+                        ucout << value.serialize();
+                    }
+                    cout << endl;
+                }
+            }
+        }
+        else
+        {
+            for (auto iter = std::begin(v.as_object()); iter != std::end(v.as_object()); ++iter)
+            {
+                //
+                auto key = iter->first;
+                auto& value = iter->second;
+                
+                if (value.is_object() || value.is_array())
+                {
+                    ucout << indented << U("\"") << key << U("\"") << U(" : ") << endl;
+                    printJSONValue(value, indented, value.is_array());
+                }
+                else
+                {
+                    //
+                    ucout << indented << U("\"") << key << U("\"") << U(" : ");
+                    
+                    if(value.is_double())
+                    {
+                        cout.precision(numeric_limits<double>::digits10 + 1);
+                        cout << value.as_double();
+                    }
+                    else if(v.is_integer())
+                    {
+                        cout << value.as_integer();
+                    }
+                    else
+                    {
+                        ucout << value.serialize();
+                    }
+                    if(iter+1 != std::end(v.as_object()))
+                        cout << U(",") << endl;
+                    else
+                        cout << endl;
+                }
+            }
+        }
+        
+        
+    }
+    
+    //
+    if(isArray)
+    {
+        cout << indent << "]" <<endl;
+    }
+    else
+    {
+        cout << indent << "}," <<endl;
     }
 }
 
@@ -397,6 +501,13 @@ int main (int argc, char* argv[])
             maxZ = pc[i].z;
     }
     
+    minX -= DX*VX;
+    minY -= DY*VY;
+    minZ -= DZ*VZ;
+    maxX += DX*VX;
+    maxY += DY*VY;
+    maxZ += DZ*VZ;
+    
     cout<< "test ... min "<<minX<<" "<<minY<<" "<<minZ<<endl;
     cout<< "test ... max "<<maxX<<" "<<maxY<<" "<<maxZ<<endl;
     
@@ -405,35 +516,36 @@ int main (int argc, char* argv[])
     
     //
     json::value j = json::value::parse(f);
+    //
+    json::value jout;
+    jout[U("name")] = j[U("name")];
     
     //
-    tileList files;
     json::value ja = j[U("tile")];
-    
-    for(auto val : ja.as_array())
-    {
-        Tile fl;
-        fl.uuid = val[U("uuid")].as_string();
-        fl.ch1 = val[U("ch1")].as_string();
-        fl.ch2 = val[U("ch2")].as_string();
-        fl.octreepath = val[U("octreepath")].as_string();
-        
-        files.push_back(fl);
-    }
+    //
+    json::value joutarray;
     
     //
     int count=0;
-    for(int i=0; i<files.size(); i++)
+    for(auto val : ja.as_array())
     {
-        Tile t = files[i];
+        string octreepath = val[U("octreepath")].as_string();
         
-        if(insideBB(t.octreepath, minX, minY, minZ, maxX, maxY, maxZ))
+        if(insideBB(octreepath, minX, minY, minZ, maxX, maxY, maxZ))
         {
+            joutarray[count] = val;
             count++;
         }
     }
+    
+    //
     cout<<"find "<<count<<" tiles"<<endl;
     
+    //
+    jout[U("tile")] = joutarray;
+    
+    //
+    printJSONValue(jout, "", jout.is_array());
     
     //
     return 0;
