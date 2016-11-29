@@ -67,13 +67,13 @@ void printJSONValue(json::value v, string indent, bool isArray)
 
                 if (value.is_object() || value.is_array())
                 {
-                    ucout << indented << key << U(" : ") << endl;
+                    ucout << indented << U("\"") << key << U("\"") << U(" : ") << endl;
                     printJSONValue(value, indented, value.is_array());
                 }
                 else
                 {
                     //
-                    ucout << indented << key << U(" : ");
+                    ucout << indented << U("\"") << key << U("\"") << U(" : ");
 
                     if(value.is_double())
                     {
@@ -88,7 +88,10 @@ void printJSONValue(json::value v, string indent, bool isArray)
                     {
                         ucout << value.serialize();
                     }
-                    cout << endl;
+		    if(iter+1 != std::end(v.as_object()))
+			cout << U(",") << endl;
+		    else
+			cout << endl;
                 }
             }
         }
@@ -103,7 +106,7 @@ void printJSONValue(json::value v, string indent, bool isArray)
     }
     else
     {
-        cout << indent << "}" <<endl;
+        cout << indent << "}," <<endl;
     }
 }
 
