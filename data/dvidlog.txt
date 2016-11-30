@@ -44,11 +44,6 @@ dvid -rpc=:7401 shutdown
 # dvid on tem-dvid server example
 #
 
-#
-# tem-dvid 
-# $ source /data/dvid-env 
-# $ which dvid
-#
 # edit config.toml file
 $ sh runDVID.sh
 
