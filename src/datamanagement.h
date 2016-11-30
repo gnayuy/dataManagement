@@ -9,6 +9,8 @@
 #include <gflags/gflags.h>
 #include "png/lodepng.h"
 
+using namespace google;
+
 //
 class Image
 {

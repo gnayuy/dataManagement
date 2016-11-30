@@ -1835,8 +1835,8 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
 int main(int argc, char *argv[])
 {
     //
-    gflags::SetUsageMessage("dataManager -tiles <tilelist.json> -server <url:port> -uuid <uuid> -name <dataname> -methods <GET/POST>");
-    gflags::ParseCommandLineFlags(&argc, &argv, true);
+    SetUsageMessage("dataManager -tiles <tilelist.json> -server <url:port> -uuid <uuid> -name <dataname> -methods <GET/POST>");
+    ParseCommandLineFlags(&argc, &argv, true);
 
     //
     if(FLAGS_test)
