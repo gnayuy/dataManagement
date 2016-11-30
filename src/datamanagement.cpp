@@ -182,7 +182,8 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
     builder.append_path(uuid);
     builder.append_path(U("/"));
     builder.append_path(dataName);
-    builder.append_path(U("/raw/0_1_2/640_736_544/"));
+    //builder.append_path(U("/raw/0_1_2/640_736_544/"));
+    builder.append_path(U("/raw/0_1_2/688_512_288/"));
 
     cout<<builder.to_string()<<endl;
 
@@ -192,17 +193,25 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
 
     // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
     // Least Common Multiple (dim, 32)
-    long tsx = 640, tsy = 552, tsz = 204;
-    long csx = 640, csy = 736, csz = 544;
+    //long tsx = 640, tsy = 552, tsz = 204;
+    //long csx = 640, csy = 736, csz = 544;
+    long tsx = 688, tsy = 512, tsz = 288;
+    long csx = 688, csy = 512, csz = 288;
+
+    //
     long offz, offy, offx;
     long offTileX, offTileY, offTileZ, otx, oty, otz;
     long offChunkX, offChunkY, offChunkZ;
     long bufX, bufY, bufZ;
 
     //
+    //bufX = tsx*4;
+    //bufY = tsy*4;
+    //bufZ = tsz*8;
+
     bufX = tsx*4;
-    bufY = tsy*4;
-    bufZ = tsz*8;
+    bufY = tsy;
+    bufZ = tsz;
 
     long sizeBuf = bufX*bufY*bufZ;
 
@@ -222,10 +231,10 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
     for(long ii=0; ii<1; ii++)
     {
         otx = offTileX + ii;
-        for(long jj=0; jj<4; jj++)
+        for(long jj=0; jj<1; jj++)
         {
             oty = offTileY + jj;
-            for(long kk=0; kk<8; kk++)
+            for(long kk=0; kk<1; kk++)
             {
                 otz = offTileZ + kk;
 
@@ -259,11 +268,11 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
         {
             otx = offChunkX + ii;
             offx = otx*csx;
-            for(long jj=0; jj<3; jj++)
+            for(long jj=0; jj<1; jj++) //
             {
                 oty = offChunkY + jj;
                 offy = oty*csy;
-                for(long kk=0; kk<3; kk++)
+                for(long kk=0; kk<1; kk++) //
                 {
                     otz = offChunkZ + kk;
                     offz = otz*csz;
@@ -538,7 +547,6 @@ int DataManager::findNode(tileListType tiles, long xoff, long yoff, long zoff)
     {
         if(tiles[t].visited)
             continue;
-
         //
         if(tiles[t].offTileX==xoff && tiles[t].offTileY==yoff && tiles[t].offTileZ==zoff)
         {
@@ -1930,7 +1938,10 @@ int main(int argc, char *argv[])
         DataManager dataManager;
         dataManager.computeOffset(tiles);
         //dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
-        dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,FLAGS_branch); // customized for specific data size here
+        // dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,FLAGS_branch); // customized for specific data size here
+        // dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
+
+        dataManager.setBufferLUT(32,32,32,1,1,1,4,1,1,FLAGS_branch);
         dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
     }
     else
