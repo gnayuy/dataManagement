@@ -36,3 +36,9 @@ dvid -rpc=:7401 -stdin node $UUID metadata put mouselightbranch3 < data/mouselig
 #
 
 dvid -rpc=:7401 shutdown
+
+#
+# tem-dvid 
+# $ source /data/dvid-env 
+# $ which dvid
+#
