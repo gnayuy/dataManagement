@@ -1,3 +1,6 @@
+#
+# dvid on localhost example
+#
 
 ## create a MouseLightSubset repo
 
@@ -38,7 +41,41 @@ dvid -rpc=:7401 -stdin node $UUID metadata put mouselightbranch3 < data/mouselig
 dvid -rpc=:7401 shutdown
 
 #
+# dvid on tem-dvid server example
+#
+
+#
 # tem-dvid 
 # $ source /data/dvid-env 
 # $ which dvid
+#
+# edit config.toml file
+$ sh runDVID.sh
+
+$ source /data/dvid-env
+$ which dvid
+# /opt/buildem/bin/dvid
+
+$ dvid -rpc=:7401 repos new MouseLightSubset
+#New repo "MouseLightSubset" created with head node f3e363850e7e44579a5deca4a7fc7918
+
+$ UUID=f3e
+
+$ dvid -rpc=:7401 repo $UUID new uint8blk grayscale VoxelSize=249.761,250.487,1001.04
+#Data "grayscale" [uint8blk] added to node f3e363850e7e44579a5deca4a7fc7918
+#
+# http://tem-dvid:7400/api/node/f3e/grayscale/info
+#
+
+$ dvid -rpc=:7401 repo $UUID new keyvalue metadata
+#Data "metadata" [keyvalue] added to node f3e363850e7e44579a5deca4a7fc7918
+#
+# http://tem-dvid:7400/api/node/f3e/metadata/info
+#
+
+$ dvid -rpc=:7401 -stdin node $UUID metadata put mouselightsubset < data/metaData.json
+#Put 496 bytes into key "mouselightsubset" for keyvalue "metadata", uuid f3e
+#
+# http://tem-dvid:7400/api/node/f3e/metadata/keys
+# http://tem-dvid:7400/api/node/f3e/metadata/key/mouselightsubset
 #
