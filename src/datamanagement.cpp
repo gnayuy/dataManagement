@@ -189,7 +189,7 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
 
     //
     Tile t = tiles[0];
-    cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<endl;
+    cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<" , of tiles in "<<tiles.size()<<endl;
 
     // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
     // Least Common Multiple (dim, 32)
@@ -214,6 +214,9 @@ int DataManager::putBufferData(tileListType tiles, utility::string_t server, uti
     bufZ = tsz;
 
     long sizeBuf = bufX*bufY*bufZ;
+
+    //
+    cout<<"bufLUT "<<bufLUT.size()<<" "<<bufNumber<<endl;
 
     //
     offTileX = bufLUT[bufNumber].offTileX;
@@ -956,6 +959,9 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
 void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long blocksX, long blocksY, long blocksZ, long chunksX, long chunksY, long chunksZ, int branch)
 {
     //
+    cout<<"inputs "<<blocksX<<" "<<blocksY<<" "<<blocksZ<<" "<<chunksX<<" "<<chunksY<<" "<<chunksZ<<endl;
+
+    //
     long ioff, joff, koff;
     switch(branch)
     {
@@ -1005,6 +1011,13 @@ void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long block
     }
 
     //
+    double offx = chunksX/blocksX;
+    double offy = chunksY/blocksY;
+    double offz = chunksZ/blocksZ;
+
+    //cout<<offx<<" "<<offy<<" "<<offz<<endl;
+
+    //
     for(long i=0; i<tilesX; i+=blocksX)
     {
         for(long j=0; j<tilesY; j+=blocksY)
@@ -1012,12 +1025,21 @@ void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long block
             for(long k=0; k<tilesZ; k+=blocksZ)
             {
                 //
-                IndexBuffer ib(i+ioff, j+joff, k+koff, (i+ioff)/blocksX * chunksX, (j+joff)/blocksY * chunksY, (k+koff)/blocksZ * chunksZ);
+                IndexBuffer ib(i+ioff, j+joff, k+koff, long((i+ioff)*offx), long((j+joff)*offy), long((k+koff)*offz));
+
+                cout<<" offsets "<<ib.offChunkX<<" "<<ib.offChunkY<<" "<<ib.offChunkZ<<endl;
 
                 bufLUT.push_back(ib);
             }
         }
     }
+
+    //
+//    for(long bufNumber=0; bufNumber<bufLUT.size(); bufNumber++)
+//    {
+//        cout<<" offset tile "<<bufLUT[bufNumber].offTileX <<" "<<bufLUT[bufNumber].offTileY<<" "<<bufLUT[bufNumber].offTileZ<<endl;
+//        cout<<" offset chunk "<<bufLUT[bufNumber].offChunkX<<" "<<bufLUT[bufNumber].offChunkY<<" "<<bufLUT[bufNumber].offChunkZ<<endl;
+//    }
 }
 
 // CLI
