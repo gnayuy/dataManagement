@@ -1172,18 +1172,18 @@ int main(int argc, char *argv[])
         //
         DataManager dataManager;
         dataManager.computeOffset(tiles);
-        //dataManager.putData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name);
+
         // dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,FLAGS_branch); // customized for specific data size here
         // dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
 
-        //dataManager.setBufferLUT(32,32,32,1,1,1,4,1,1,FLAGS_branch);
-        //dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
+        // dataManager.setBufferLUT(32,32,32,1,1,1,4,1,1,FLAGS_branch);
+        // dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
 
         LongTuplet tileSize(32,32,32);
         LongTuplet blockSize(1,1,1);
         LongTuplet chunkSize(4,1,1);
 
-        dataManager.setBufferLUT(tileSize,blockSize,chunkSize, FLAGS_branch);
+        dataManager.setBufferLUT(tileSize, blockSize, chunkSize, FLAGS_branch);
 
         LongTuplet szTile(FLAGS_sx, FLAGS_sy, FLAGS_sz);
         LongTuplet szChunk(FLAGS_cx, FLAGS_cy, FLAGS_cz);
