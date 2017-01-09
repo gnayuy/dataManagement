@@ -4,50 +4,11 @@
 
 #include "datamanagement.h"
 
-// class image
-Image::Image()
-{
-    p = NULL;
-}
-
-Image::~Image()
-{
-    if(p)
-    {
-        delete []p;
-        p = NULL;
-    }
-}
-
-void Image::getOffset(string octreepath, double ox, double oy, double oz, double vx, double vy, double vz, long dimx, long dimy, long dimz, double &offx, double &offy, double &offz)
-{
-
-}
-
-void Image::setOrigin(double x, double y, double z)
-{
-
-}
-
-void Image::setDimension(long x, long  y, long z)
-{
-
-}
-
-void Image::setResolution(double x, double y, double z)
-{
-
-}
-
 // class IndexChunk
 IndexBuffer::IndexBuffer(long otx, long oty, long otz, long ocx, long ocy, long ocz)
 {
-    offTileX = otx;
-    offTileY = oty;
-    offTileZ = otz;
-    offChunkX = ocx;
-    offChunkY = ocy;
-    offChunkZ = ocz;
+    tileOffsets.setXYZ(otx, oty, otz);
+    chunkOffsets.setXYZ(ocx, ocy, ocz);
 }
 
 IndexBuffer::~IndexBuffer()
@@ -69,7 +30,7 @@ Block::~Block()
 // class DataManager
 DataManager::DataManager()
 {
-    m_Data = NULL;
+    m_Data = new BioMedicalData();
 }
 
 DataManager::~DataManager()
@@ -79,7 +40,7 @@ DataManager::~DataManager()
 
 void DataManager::clearData()
 {
-    del1dp<unsigned char>(m_Data);
+    del1dp<BioMedicalData>(m_Data);
 }
 
 int DataManager::upstreaming(http_client client, uri_builder builder, unsigned char *buffer, long sx, long sy, long sz, long bufSizeX, long bufSizeY, long bufSizeZ)
@@ -166,221 +127,295 @@ pplx::task<void> DataManager::httpPostAsync(http_client client, uri_builder buil
     });
 }
 
-int DataManager::putBufferData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName, long bufNumber)
+//int DataManager::putBufferData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName, long bufNumber)
+//{
+//    if(bufLUT.size()==0)
+//    {
+//        cout<<"Invalid buffer look up table!"<<endl;
+//        return -1;
+//    }
+
+//    // client
+//    http::uri uri = http::uri(server);
+//    http_client client(uri);
+
+//    http::uri_builder builder(U("/api/node/"));
+//    builder.append_path(uuid);
+//    builder.append_path(U("/"));
+//    builder.append_path(dataName);
+//    //builder.append_path(U("/raw/0_1_2/640_736_544/"));
+//    builder.append_path(U("/raw/0_1_2/688_512_288/"));
+
+//    cout<<builder.to_string()<<endl;
+
+//    //
+//    Tile t = tiles[0];
+//    cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<" , of tiles in "<<tiles.size()<<endl;
+
+//    // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
+//    // Least Common Multiple (dim, 32)
+//    //long tsx = 640, tsy = 552, tsz = 204;
+//    //long csx = 640, csy = 736, csz = 544;
+//    long tsx = 688, tsy = 512, tsz = 288;
+//    long csx = 688, csy = 512, csz = 288;
+
+//    //
+//    long offz, offy, offx;
+//    long offTileX, offTileY, offTileZ, otx, oty, otz;
+//    long offChunkX, offChunkY, offChunkZ;
+//    long bufX, bufY, bufZ;
+
+//    //
+//    //bufX = tsx*4;
+//    //bufY = tsy*4;
+//    //bufZ = tsz*8;
+
+//    bufX = tsx*4;
+//    bufY = tsy;
+//    bufZ = tsz;
+
+//    long sizeBuf = bufX*bufY*bufZ;
+
+//    //
+//    cout<<"bufLUT "<<bufLUT.size()<<" "<<bufNumber<<endl;
+
+//    //
+//    offTileX = bufLUT[bufNumber].offTileX;
+//    offTileY = bufLUT[bufNumber].offTileY;
+//    offTileZ = bufLUT[bufNumber].offTileZ;
+
+//    offChunkX = bufLUT[bufNumber].offChunkX;
+//    offChunkY = bufLUT[bufNumber].offChunkY;
+//    offChunkZ = bufLUT[bufNumber].offChunkZ;
+
+//    cout<<offTileX<<" "<<offTileY<<" "<<offTileZ<<endl;
+
+//    // find tile and fill the buffer
+//    unsigned char *buffer = NULL;
+//    for(long ii=0; ii<1; ii++)
+//    {
+//        otx = offTileX + ii;
+//        for(long jj=0; jj<1; jj++)
+//        {
+//            oty = offTileY + jj;
+//            for(long kk=0; kk<1; kk++)
+//            {
+//                otz = offTileZ + kk;
+
+//                //
+//                int n = findNode(tiles, otx, oty, otz);
+//                if(n>=0)
+//                {
+//                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<tiles[n].octreepath<<endl;
+
+//                    if(buffer==NULL)
+//                    {
+//                        new1dp<unsigned char>(buffer, sizeBuf);
+//                    }
+
+//                    long bx = ii*tsx;
+//                    long by = jj*tsy;
+//                    long bz = kk*tsz;
+//                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+//                    loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufX, bufY, bufZ);
+//                }
+
+//            }
+//        }
+//    }
+
+//    // upstreaming
+//    if(buffer!=NULL)
+//    {
+//        //
+//        for(long ii=0; ii<4; ii++)
+//        {
+//            otx = offChunkX + ii;
+//            offx = otx*csx;
+//            for(long jj=0; jj<1; jj++) //
+//            {
+//                oty = offChunkY + jj;
+//                offy = oty*csy;
+//                for(long kk=0; kk<1; kk++) //
+//                {
+//                    otz = offChunkZ + kk;
+//                    offz = otz*csz;
+
+//                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<offx<<"_"<<offy<<"_"<<offz<<endl;
+
+//                    string offsetpath = std::to_string(offx);
+//                    offsetpath.append("_");
+//                    offsetpath.append(std::to_string(offy));
+//                    offsetpath.append("_");
+//                    offsetpath.append(std::to_string(offz));
+
+//                    http::uri_builder queryPath = builder;
+//                    queryPath.append_path(offsetpath);
+//                    cout<<queryPath.to_string()<<endl;
+
+//                    long bx = ii*csx;
+//                    long by = jj*csy;
+//                    long bz = kk*csz;
+//                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
+//                    if(upstreaming(client, queryPath, buf, csx, csy, csz, bufX, bufY, bufZ))
+//                    {
+//                        cout<<"Fail to upstreaming data to the server"<<endl;
+//                        return -1;
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    // dealloc buffer
+//    del1dp<unsigned char>(buffer);
+
+//    //
+//    return 0;
+//}
+
+int DataManager::putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName, LongTuplet tilesize, LongTuplet chunksize, int branch)
 {
-    if(bufLUT.size()==0)
-    {
-        cout<<"Invalid buffer look up table!"<<endl;
-        return -1;
-    }
-
-    // client
-    http::uri uri = http::uri(server);
-    http_client client(uri);
-
-    http::uri_builder builder(U("/api/node/"));
-    builder.append_path(uuid);
-    builder.append_path(U("/"));
-    builder.append_path(dataName);
-    //builder.append_path(U("/raw/0_1_2/640_736_544/"));
-    builder.append_path(U("/raw/0_1_2/688_512_288/"));
-
-    cout<<builder.to_string()<<endl;
-
-    //
-    Tile t = tiles[0];
-    cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<" , of tiles in "<<tiles.size()<<endl;
-
+    // example:
     // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
     // Least Common Multiple (dim, 32)
     //long tsx = 640, tsy = 552, tsz = 204;
     //long csx = 640, csy = 736, csz = 544;
-    long tsx = 688, tsy = 512, tsz = 288;
-    long csx = 688, csy = 512, csz = 288;
 
-    //
-    long offz, offy, offx;
+    long tsx = tilesize.getX(), tsy = tilesize.getY(), tsz = tilesize.getZ();
+    long csx = chunksize.getX(), csy = chunksize.getY(), csz = chunksize.getZ();
+    long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx, bboffx, bboffy, bboffz;
     long offTileX, offTileY, offTileZ, otx, oty, otz;
     long offChunkX, offChunkY, offChunkZ;
     long bufX, bufY, bufZ;
 
-    //
-    //bufX = tsx*4;
-    //bufY = tsy*4;
-    //bufZ = tsz*8;
-
-    bufX = tsx*4;
-    bufY = tsy;
-    bufZ = tsz;
-
-    long sizeBuf = bufX*bufY*bufZ;
-
-    //
-    cout<<"bufLUT "<<bufLUT.size()<<" "<<bufNumber<<endl;
-
-    //
-    offTileX = bufLUT[bufNumber].offTileX;
-    offTileY = bufLUT[bufNumber].offTileY;
-    offTileZ = bufLUT[bufNumber].offTileZ;
-
-    offChunkX = bufLUT[bufNumber].offChunkX;
-    offChunkY = bufLUT[bufNumber].offChunkY;
-    offChunkZ = bufLUT[bufNumber].offChunkZ;
-
-    cout<<offTileX<<" "<<offTileY<<" "<<offTileZ<<endl;
-
-    // find tile and fill the buffer
-    unsigned char *buffer = NULL;
-    for(long ii=0; ii<1; ii++)
-    {
-        otx = offTileX + ii;
-        for(long jj=0; jj<1; jj++)
-        {
-            oty = offTileY + jj;
-            for(long kk=0; kk<1; kk++)
-            {
-                otz = offTileZ + kk;
-
-                //
-                int n = findNode(tiles, otx, oty, otz);
-                if(n>=0)
-                {
-                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<tiles[n].octreepath<<endl;
-
-                    if(buffer==NULL)
-                    {
-                        new1dp<unsigned char>(buffer, sizeBuf);
-                    }
-
-                    long bx = ii*tsx;
-                    long by = jj*tsy;
-                    long bz = kk*tsz;
-                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
-                    loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufX, bufY, bufZ);
-                }
-
-            }
-        }
-    }
-
-    // upstreaming
-    if(buffer!=NULL)
-    {
-        //
-        for(long ii=0; ii<4; ii++)
-        {
-            otx = offChunkX + ii;
-            offx = otx*csx;
-            for(long jj=0; jj<1; jj++) //
-            {
-                oty = offChunkY + jj;
-                offy = oty*csy;
-                for(long kk=0; kk<1; kk++) //
-                {
-                    otz = offChunkZ + kk;
-                    offz = otz*csz;
-
-                    cout<<otx<<" "<<oty<<" "<<otz<<" : "<<offx<<"_"<<offy<<"_"<<offz<<endl;
-
-                    string offsetpath = std::to_string(offx);
-                    offsetpath.append("_");
-                    offsetpath.append(std::to_string(offy));
-                    offsetpath.append("_");
-                    offsetpath.append(std::to_string(offz));
-
-                    http::uri_builder queryPath = builder;
-                    queryPath.append_path(offsetpath);
-                    cout<<queryPath.to_string()<<endl;
-
-                    long bx = ii*csx;
-                    long by = jj*csy;
-                    long bz = kk*csz;
-                    unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
-                    if(upstreaming(client, queryPath, buf, csx, csy, csz, bufX, bufY, bufZ))
-                    {
-                        cout<<"Fail to upstreaming data to the server"<<endl;
-                        return -1;
-                    }
-                }
-            }
-        }
-    }
-
-    // dealloc buffer
-    del1dp<unsigned char>(buffer);
-
-    //
-    return 0;
-}
-
-int DataManager::putData(tileListType tiles, utility::string_t server, utility::string_t uuid, utility::string_t dataName)
-{
     // client
     http::uri uri = http::uri(server);
     http_client client(uri);
+
+    string sizePath = std::to_string(csx);
+    sizePath.append("_");
+    sizePath.append(std::to_string(csy));
+    sizePath.append("_");
+    sizePath.append(std::to_string(csz));
 
     http::uri_builder builder(U("/api/node/"));
     builder.append_path(uuid);
     builder.append_path(U("/"));
     builder.append_path(dataName);
-    builder.append_path(U("/raw/0_1_2/640_736_544/")); // hard coded csx_csy_csz here, modify later!
+    builder.append_path(U("/raw/0_1_2/"));
+    builder.append_path(sizePath);
+    builder.append_path(U("/"));
 
-    cout<<builder.to_string()<<endl;
+    cout<<"client builder address: "<<builder.to_string()<<endl;
 
     //
     Tile t = tiles[0];
     cout<<t.octreepath<<" "<<std::boolalpha<<t.visited<<endl;
 
-    // make chunk 1x4x8 (640x552x204) -> 4x3x3 (640x736x544)
-    // Least Common Multiple (dim, 32)
-    long tsx = 640, tsy = 552, tsz = 204;
-    long csx = 640, csy = 736, csz = 544;
-    long level1;
-    long bb_bx, bb_by, bb_bz, bb_ex, bb_ey, bb_ez, offz, offy, offx;
-    long offTileX, offTileY, offTileZ, otx, oty, otz;
-    long offChunkX, offChunkY, offChunkZ;
-    long bufX, bufY, bufZ;
+    //
+
+    switch (branch) {
+    case 1:
+
+        bb_bx = 0;
+        bb_by = 0;
+        bb_bz = 0;
+
+        bb_ex = 32*tsx;
+        bb_ey = 32*tsy;
+        bb_ez = 32*tsz;
+
+        bboffx = 0;
+        bboffy = 0;
+        bboffz = 0;
+
+        break;
+
+    case 2:
+
+        break;
+
+    case 3:
+
+        bb_bx = 0;
+        bb_by = 32*tsy;
+        bb_bz = 0;
+
+        bb_ex = 32*tsx;
+        bb_ey = 64*tsy;
+        bb_ez = 32*tsz;
+
+        bboffx = 0;
+        bboffy = 32;
+        bboffz = 0;
+
+        break;
+
+    case 4:
+
+        break;
+
+    case 5:
+
+        break;
+
+    case 6:
+
+        break;
+
+    case 7:
+
+        break;
+
+    case 8:
+
+        break;
+
+    default:
+        break;
+    }
 
     //
-    level1 = 3; // pick branch 3
-
-    bb_bx = 0;
-    bb_by = 32*tsy;
-    bb_bz = 0;
-
-    bb_ex = 32*tsx;
-    bb_ey = 64*tsy;
-    bb_ez = 32*tsz;
-
     bufX = tsx*4;
-    bufY = tsy*4;
-    bufZ = tsz*8;
+    bufY = boost::math::lcm(tsy, csy);
+    bufZ = boost::math::lcm(tsz, csz);
+
+    LongTuplet bufSize(bufX, bufY, bufZ);
+
+    long tstepx = 1;
+    long tstepy = bufY/tsy;
+    long tstepz = bufZ/tsz;
+
+    long cstepx = 4;
+    long cstepy = bufY/csy;
+    long cstepz = bufZ/csz;
 
     long sizeBuf = bufX*bufY*bufZ;
 
     //
-    for(long i=0; i<32; i++)
+    for(long i=0; i<32; i+=tstepx)
     {
-        offTileX = i;
-        offChunkX = i*4;
-        for(long j=0; j<32; j+=4)
+        offTileX = i + bboffx;
+        offChunkX = i*cstepx;
+        for(long j=0; j<32; j+=tstepy)
         {
-            offTileY = j + 32;
-            offChunkY = j/4 * 3;
-            for(long k=0; k<32; k+=8)
+            offTileY = j + bboffy;
+            offChunkY = j/tstepy * cstepy;
+            for(long k=0; k<32; k+=tstepz)
             {
-                offTileZ = k;
-                offChunkZ = k/8 * 3;
+                offTileZ = k + bboffz;
+                offChunkZ = k/tstepz * cstepz;
 
                 // find tile and fill the buffer
                 unsigned char *buffer = NULL;
-                for(long ii=0; ii<1; ii++)
+                for(long ii=0; ii<tstepx; ii++)
                 {
                     otx = offTileX + ii;
-                    for(long jj=0; jj<4; jj++)
+                    for(long jj=0; jj<tstepy; jj++)
                     {
                         oty = offTileY + jj;
-                        for(long kk=0; kk<8; kk++)
+                        for(long kk=0; kk<tstepz; kk++)
                         {
                             otz = offTileZ + kk;
 
@@ -399,7 +434,7 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                                 long by = jj*tsy;
                                 long bz = kk*tsz;
                                 unsigned char *buf = buffer + bz*bufX*bufY + by*bufX + bx;
-                                loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufX, bufY, bufZ);
+                                loadTile(buf, tiles[n].ch1, tiles[n].ch2, bufSize);
                             }
 
                         }
@@ -410,15 +445,15 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
                 if(buffer!=NULL)
                 {
                     //
-                    for(long ii=0; ii<4; ii++)
+                    for(long ii=0; ii<cstepx; ii++)
                     {
                         otx = offChunkX + ii;
                         offx = bb_bx + otx*csx;
-                        for(long jj=0; jj<3; jj++)
+                        for(long jj=0; jj<cstepy; jj++)
                         {
                             oty = offChunkY + jj;
                             offy = bb_by + oty*csy;
-                            for(long kk=0; kk<3; kk++)
+                            for(long kk=0; kk<cstepz; kk++)
                             {
                                 otz = offChunkZ + kk;
                                 offz = bb_bz + otz*csz;
@@ -459,44 +494,37 @@ int DataManager::putData(tileListType tiles, utility::string_t server, utility::
     return 0;
 }
 
-int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bufSizeX, long bufSizeY, long bufSizeZ)
+int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, LongTuplet bufSize)
 {
-    // load ch1 and ch2
-    TiffIO tiff1, tiff2;
+    //
+    BioMedicalDataIO tile1, tile2;
 
-    if(tiff1.canReadFile(const_cast<char*>(ch1.c_str())))
+    if(tile1.readData(ch1)!=0)
     {
-        tiff1.read();
-    }
-    else
-    {
-        std::cout<<"Fail to read tiff image "<<ch1<<"."<<std::endl;
+        cout<<"Fail to read ch1!"<<endl;
         return -1;
     }
 
-    if(tiff2.canReadFile(const_cast<char*>(ch2.c_str())))
+    if(tile2.readData(ch2)!=0)
     {
-        tiff2.read();
-    }
-    else
-    {
-        std::cout<<"Fail to read tiff image "<<ch2<<"."<<std::endl;
+        cout<<"Fail to read ch1!"<<endl;
         return -1;
     }
 
+    //
     long x,y,z;
-    long sx = tiff2.getDimx();
-    long sy = tiff2.getDimy();
-    long sz = tiff2.getDimz();
-    int datatype = tiff2.getDataType();
+    long sx = tile1.m_Data->size.getX();
+    long sy = tile1.m_Data->size.getY();
+    long sz = tile1.m_Data->size.getZ();
+    int datatype = (int)(tile1.m_Data->dataType());
 
-    if(tiff1.getDimx()!=sx || tiff1.getDimy()!=sy || tiff1.getDimz()!=sz || tiff1.getDataType()!=datatype)
+    if(tile2.m_Data->size.getX()!=sx || tile2.m_Data->size.getY()!=sy || tile2.m_Data->size.getZ()!=sz || tile2.m_Data->dataType()!=datatype)
     {
         cout<<"Inconsistent tiff images with channel1 "<<ch1<<" and channel 2 "<<ch2<<endl;
         return -1;
     }
 
-    if(bufSizeX<sx || bufSizeY<sy || bufSizeZ<sz)
+    if(bufSize.getX()<sx || bufSize.getY()<sy || bufSize.getZ()<sz)
     {
         cout<<"Incorrect size of buffer"<<endl;
         return -1;
@@ -507,21 +535,21 @@ int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bufSiz
     {
         //
         unsigned short *pData = (unsigned short*)p;
-        unsigned short *pCh1 = (unsigned short*)(tiff1.getData());
-        unsigned short *pCh2 = (unsigned short*)(tiff2.getData());
+        unsigned short *pCh1 = (unsigned short*)(tile1.m_Data->data());
+        unsigned short *pCh2 = (unsigned short*)(tile2.m_Data->data());
 
         // buffer size designed for byte data
-        bufSizeX /= 2;
+        bufSize.setX(bufSize.getX() / 2);
 
         //
         for(z=0; z<sz; z++)
         {
             long offz = z*sy*sx;
-            long oz = z*bufSizeX*bufSizeY;
+            long oz = z*bufSize.getX()*bufSize.getY();
             for(y=0; y<sy; y++)
             {
                 long offy = offz + y*sx;
-                long oy = oz + y*bufSizeX;
+                long oy = oz + y*bufSize.getX();
                 for(x=0; x<sx; x++)
                 {
                     long idx = offy + x;
@@ -542,7 +570,7 @@ int DataManager::loadTile(unsigned char *&p, string ch1, string ch2, long bufSiz
     return 0;
 }
 
-int DataManager::findNode(tileListType tiles, long xoff, long yoff, long zoff)
+int DataManager::findNode(tileListType tiles, long ofx, long ofy, long ofz)
 {
     //
     long size = tiles.size();
@@ -551,7 +579,7 @@ int DataManager::findNode(tileListType tiles, long xoff, long yoff, long zoff)
         if(tiles[t].visited)
             continue;
         //
-        if(tiles[t].offTileX==xoff && tiles[t].offTileY==yoff && tiles[t].offTileZ==zoff)
+        if(tiles[t].offTileX==ofx && tiles[t].offTileY==ofy && tiles[t].offTileZ==ofz)
         {
             tiles[t].visited = true;
             return t;
@@ -698,19 +726,6 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
         return -1;
     }
 
-    cout<<"save image as "<<outFileName<<endl;
-    cout<<"image size: "<<sx<<" "<<sy<<" "<<sz<<" "<<sc<<endl;
-    cout<<"voxel size: "<<vsx<<" "<<vsy<<" "<<vsz<<endl;
-
-    //
-    TiffIO tif;
-
-    tif.setResX(vsx);
-    tif.setResY(vsy);
-    tif.setResZ(vsz);
-
-    tif.setDataType(dataType);
-
     //
     long chnsize = sx*sy*sz;
     long size = chnsize*3; // RG -> RGB
@@ -718,7 +733,7 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
     // cxyz -> xyzc
     if(dataType==USHORT)
     {
-        unsigned short *pData = (unsigned short*)(m_Data);
+        unsigned short *pData = (unsigned short*)(m_Data->data());
         unsigned short *p = NULL;
 
         //
@@ -751,18 +766,13 @@ int DataManager::saveTile(string outFileName, long sx, long sy, long sz, long sc
         cout<<"Data copied (cxyz -> xyzc)"<<endl;
 
         //
-        tif.setDimx(sx);
-        tif.setDimy(sy);
-        tif.setDimz(sz);
-        tif.setDimc(3); // tif.setDimc(sc);
-        tif.setDimt(1);
+        BioMedicalDataIO output;
 
-        //
-        tif.setData((void*)p);
-        tif.setFileName(const_cast<char*>(outFileName.c_str()));
-
-        //
-        tif.write();
+        output.m_Data->setData((void *)p);
+        output.m_Data->setDataType((DataType)dataType);
+        output.m_Data->size.setXYZCT(sx,sy,sz,3,1);
+        output.m_Data->spacing.setXYZCT(vsx,vsy,vsz,1.0,1.0);
+        output.writeData(outFileName);
 
         //
         del1dp<unsigned short>(p);
@@ -936,8 +946,8 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
 
     //
     long size = 4*sx*sy*sz; // in bytes
-    new1dp<unsigned char, long>(m_Data, size);
-    rawptr_buffer<unsigned char> rawBuf(m_Data, size);
+    m_Data->newData(size);
+    rawptr_buffer<unsigned char> rawBuf((unsigned char*)(m_Data->data()), size);
     //concurrency::streams::ostream stream(rawBuf);
 
     cout<<"create raw buffer with size "<<rawBuf.size()<<endl;
@@ -956,11 +966,8 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
     return 0;
 }
 
-void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long blocksX, long blocksY, long blocksZ, long chunksX, long chunksY, long chunksZ, int branch)
+void DataManager::setBufferLUT(LongTuplet tileSize, LongTuplet blockSize, LongTuplet chunkSize, int branch)
 {
-    //
-    cout<<"inputs "<<blocksX<<" "<<blocksY<<" "<<blocksZ<<" "<<chunksX<<" "<<chunksY<<" "<<chunksZ<<endl;
-
     //
     long ioff, joff, koff;
     switch(branch)
@@ -971,39 +978,39 @@ void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long block
         koff = 0;
         break;
     case 2:
-        ioff = tilesX;
+        ioff = tileSize.getX();
         joff = 0;
         koff = 0;
         break;
     case 3:
         ioff = 0;
-        joff = tilesY;
+        joff = tileSize.getY();
         koff = 0;
         break;
     case 4:
-        ioff = tilesX;
-        joff = tilesY;
+        ioff = tileSize.getX();
+        joff = tileSize.getY();
         koff = 0;
         break;
     case 5:
         ioff = 0;
         joff = 0;
-        koff = tilesZ;
+        koff = tileSize.getZ();
         break;
     case 6:
-        ioff = tilesX;
+        ioff = tileSize.getX();
         joff = 0;
-        koff = tilesZ;
+        koff = tileSize.getZ();
         break;
     case 7:
         ioff = 0;
-        joff = tilesY;
-        koff = tilesZ;
+        joff = tileSize.getY();
+        koff = tileSize.getZ();
         break;
     case 8:
-        ioff = tilesX;
-        joff = tilesY;
-        koff = tilesZ;
+        ioff = tileSize.getX();
+        joff = tileSize.getY();
+        koff = tileSize.getZ();
         break;
     default:
         cout<<"Invalid octree node!"<<endl;
@@ -1011,35 +1018,28 @@ void DataManager::setBufferLUT(long tilesX, long tilesY, long tilesZ, long block
     }
 
     //
-    double offx = chunksX/blocksX;
-    double offy = chunksY/blocksY;
-    double offz = chunksZ/blocksZ;
+    double offx = chunkSize.getX()/blockSize.getX();
+    double offy = chunkSize.getY()/blockSize.getY();
+    double offz = chunkSize.getZ()/blockSize.getZ();
 
     //cout<<offx<<" "<<offy<<" "<<offz<<endl;
 
     //
-    for(long i=0; i<tilesX; i+=blocksX)
+    for(long i=0; i<tileSize.getX(); i+=blockSize.getX())
     {
-        for(long j=0; j<tilesY; j+=blocksY)
+        for(long j=0; j<tileSize.getY(); j+=blockSize.getY())
         {
-            for(long k=0; k<tilesZ; k+=blocksZ)
+            for(long k=0; k<tileSize.getZ(); k+=blockSize.getZ())
             {
                 //
                 IndexBuffer ib(i+ioff, j+joff, k+koff, long((i+ioff)*offx), long((j+joff)*offy), long((k+koff)*offz));
 
-                cout<<" offsets "<<ib.offChunkX<<" "<<ib.offChunkY<<" "<<ib.offChunkZ<<endl;
+                cout<<" offsets "<<ib.chunkOffsets.getX()<<" "<<ib.chunkOffsets.getY()<<" "<<ib.chunkOffsets.getZ()<<endl;
 
                 bufLUT.push_back(ib);
             }
         }
     }
-
-    //
-//    for(long bufNumber=0; bufNumber<bufLUT.size(); bufNumber++)
-//    {
-//        cout<<" offset tile "<<bufLUT[bufNumber].offTileX <<" "<<bufLUT[bufNumber].offTileY<<" "<<bufLUT[bufNumber].offTileZ<<endl;
-//        cout<<" offset chunk "<<bufLUT[bufNumber].offChunkX<<" "<<bufLUT[bufNumber].offChunkY<<" "<<bufLUT[bufNumber].offChunkZ<<endl;
-//    }
 }
 
 // CLI
@@ -1075,37 +1075,29 @@ int testReadWriteData(string outFileName, string ch1, string ch2)
     //
     unsigned char *p = NULL;
 
-    // load ch1 and ch2
-    TiffIO tiff1, tiff2;
+    //
+    BioMedicalDataIO tile1, tile2;
 
-    if(tiff1.canReadFile(const_cast<char*>(ch1.c_str())))
+    if(tile1.readData(ch1)!=0)
     {
-        tiff1.read();
-    }
-    else
-    {
-        std::cout<<"Fail to read tiff image "<<ch1<<"."<<std::endl;
+        cout<<"Fail to read ch1!"<<endl;
         return -1;
     }
 
-    if(tiff2.canReadFile(const_cast<char*>(ch2.c_str())))
+    if(tile2.readData(ch2)!=0)
     {
-        tiff2.read();
-    }
-    else
-    {
-        std::cout<<"Fail to read tiff image "<<ch2<<"."<<std::endl;
+        cout<<"Fail to read ch1!"<<endl;
         return -1;
     }
 
     //
     long x,y,z;
-    long sx = tiff2.getDimx();
-    long sy = tiff2.getDimy();
-    long sz = tiff2.getDimz();
-    int dataType = tiff2.getDataType();
+    long sx = tile1.m_Data->size.getX();
+    long sy = tile1.m_Data->size.getY();
+    long sz = tile1.m_Data->size.getZ();
+    int datatype = (int)(tile1.m_Data->dataType());
 
-    if(tiff1.getDimx()!=sx || tiff1.getDimy()!=sy || tiff1.getDimz()!=sz || tiff1.getDataType()!=dataType)
+    if(tile2.m_Data->size.getX()!=sx || tile2.m_Data->size.getY()!=sy || tile2.m_Data->size.getZ()!=sz || tile2.m_Data->dataType()!=datatype)
     {
         cout<<"Inconsistent tiff images with channel1 "<<ch1<<" and channel 2 "<<ch2<<endl;
         return -1;
@@ -1117,26 +1109,23 @@ int testReadWriteData(string outFileName, string ch1, string ch2)
     new1dp<unsigned char, long>(p, size);
 
     //
-    if(dataType==USHORT)
+    if(datatype==USHORT)
     {
         //
         unsigned short *pData = (unsigned short*)p;
-        unsigned short *pCh1 = (unsigned short*)(tiff1.getData());
-        unsigned short *pCh2 = (unsigned short*)(tiff2.getData());
+        unsigned short *pCh1 = (unsigned short*)(tile1.m_Data->data());
+        unsigned short *pCh2 = (unsigned short*)(tile2.m_Data->data());
 
         //
         for(z=0; z<sz; z++)
         {
             long offz = z*sy*sx;
-            //long oz = z*sy*sx*3;
             for(y=0; y<sy; y++)
             {
                 long offy = offz + y*sx;
-                //long oy = oz + y*sx*3;
                 for(x=0; x<sx; x++)
                 {
                     long idx = offy + x;
-                    //long ind = oy + 3*x;
 
                     pData[idx] = pCh1[idx];
                     pData[idx+szChannel] = pCh2[idx];
@@ -1162,27 +1151,13 @@ int testReadWriteData(string outFileName, string ch1, string ch2)
     cout<< isbuf.read_to_end(rb).get() << endl;
 
     // save output
-    TiffIO tif;
+    BioMedicalDataIO output;
 
-    tif.setResX(0.25);
-    tif.setResY(0.25);
-    tif.setResZ(1.00);
-
-    tif.setDataType(dataType);
-
-    //
-    tif.setDimx(sx);
-    tif.setDimy(sy);
-    tif.setDimz(sz);
-    tif.setDimc(3);
-    tif.setDimt(1);
-
-    //
-    tif.setData((void*)pOut);
-    tif.setFileName(const_cast<char*>(outFileName.c_str()));
-
-    //
-    tif.write();
+    output.m_Data->setData((void *)pOut);
+    output.m_Data->setDataType((DataType)datatype);
+    output.m_Data->size.setXYZCT(sx,sy,sz,3,1);
+    output.m_Data->spacing.setXYZCT(tile1.m_Data->spacing.getX(),tile1.m_Data->spacing.getY(),tile1.m_Data->spacing.getZ(),1.0,1.0);
+    output.writeData(outFileName);
 
     //
     del1dp<unsigned char>(p);
@@ -1378,7 +1353,12 @@ int testBufferMap(string tilesFile, int branch)
     //
     DataManager dataManager;
     dataManager.computeOffset(tiles);
-    dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3, branch);
+
+    LongTuplet tileSize(32,32,32);
+    LongTuplet blockSize(1,4,8);
+    LongTuplet chunkSize(4,3,3);
+
+    dataManager.setBufferLUT(tileSize,blockSize,chunkSize, branch);
 
     //
     bool hasData = false;
@@ -1389,24 +1369,23 @@ int testBufferMap(string tilesFile, int branch)
         //
         cout<<"Buffer #"<<i<<":"<<endl;
 
-        cout<<dataManager.bufLUT[i].offTileX<<" "<<dataManager.bufLUT[i].offTileY<<" "<<dataManager.bufLUT[i].offTileZ<<endl;
-        cout<<dataManager.bufLUT[i].offChunkX<<" "<<dataManager.bufLUT[i].offChunkY<<" "<<dataManager.bufLUT[i].offChunkZ<<endl;
+        cout<<dataManager.bufLUT[i].tileOffsets.getX()<<" "<<dataManager.bufLUT[i].tileOffsets.getY()<<" "<<dataManager.bufLUT[i].tileOffsets.getZ()<<endl;
+        cout<<dataManager.bufLUT[i].chunkOffsets.getX()<<" "<<dataManager.bufLUT[i].chunkOffsets.getY()<<" "<<dataManager.bufLUT[i].chunkOffsets.getZ()<<endl;
         cout<<endl;
 
         //
         long otx, oty, otz;
 
-        // find tile and fill the buffer
-        unsigned char *buffer = NULL;
+        // find tile
         for(long ii=0; ii<1; ii++)
         {
-            otx = dataManager.bufLUT[i].offTileX + ii;
+            otx = dataManager.bufLUT[i].tileOffsets.getX() + ii;
             for(long jj=0; jj<4; jj++)
             {
-                oty = dataManager.bufLUT[i].offTileY + jj;
+                oty = dataManager.bufLUT[i].tileOffsets.getY() + jj;
                 for(long kk=0; kk<8; kk++)
                 {
-                    otz = dataManager.bufLUT[i].offTileZ + kk;
+                    otz = dataManager.bufLUT[i].tileOffsets.getZ() + kk;
 
                     //
                     int n = dataManager.findNode(tiles, otx, oty, otz);
@@ -1607,32 +1586,18 @@ int testStreamData(string server, string uuid, string dataName, long x, long y, 
         }
 
         // save output
-        TiffIO tif;
+        BioMedicalDataIO output;
 
-        tif.setResX(0.25);
-        tif.setResY(0.25);
-        tif.setResZ(1.00);
+        output.m_Data->setData((void *)pOut);
+        output.m_Data->setDataType(USHORT);
+        output.m_Data->size.setXYZCT(sx,sy,sz,3,1);
+        output.m_Data->spacing.setXYZCT(0.25,0.25,1.0,1.0,1.0);
+        output.writeData(filename);
 
-        tif.setDataType(USHORT);
-
-        //
-        tif.setDimx(sx);
-        tif.setDimy(sy);
-        tif.setDimz(sz);
-        tif.setDimc(3);
-        tif.setDimt(1);
-
-        //
-        tif.setData((void*)pOut);
-        tif.setFileName(const_cast<char*>(filename));
-
-        //
-        tif.write();
-
-        //
-        for(int x=0; x<16; x++)
-            cout<<int(image[x])<<" ";
-        cout<<endl;
+//        //
+//        for(int x=0; x<16; x++)
+//            cout<<int(image[x])<<" ";
+//        cout<<endl;
 
         //
         del1dp<unsigned char>(pImg);
@@ -1673,17 +1638,9 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
     {
         Block b;
 
-        b.sx = 128;
-        b.sy = 128;
-        b.sz = 128;
-
-        b.box = 128 * i;
-        b.boy = i*48;
-        b.boz = i*16;
-
-        b.ox = xoff + b.box*4; // uint16 + 2 colors
-        b.oy = yoff + b.boy;
-        b.oz = zoff + b.boz;
+        b.size = LongTuplet(128,128,128);
+        b.offsets = LongTuplet(xoff + b.blockOffsets.getX()*4, yoff + b.blockOffsets.getY(), b.blockOffsets.getZ()); // uint16 + 2 colors
+        b.blockOffsets = LongTuplet(128 * i, i*48, i*16);
 
         blocks.push_back(b);
     }
@@ -1694,17 +1651,9 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
     {
         Block b;
 
-        b.sx = 128;
-        b.sy = 128;
-        b.sz = 128;
-
-        b.ox = blocks[n].ox + 128*4;
-        b.oy = blocks[n].oy - 32;
-        b.oz = blocks[n].oz - 12;
-
-        b.box = blocks[n].box + 128;
-        b.boy = blocks[n].boy - 32;
-        b.boz = blocks[n].boz - 12;
+        b.size = LongTuplet(128,128,128);
+        b.offsets = LongTuplet(blocks[n].offsets.getX() + 128*4, blocks[n].offsets.getY() - 32, blocks[n].offsets.getZ() - 12);
+        b.blockOffsets = LongTuplet(blocks[n].blockOffsets.getX() + 128, blocks[n].blockOffsets.getY() - 32, blocks[n].blockOffsets.getZ() - 12);
 
         n++;
 
@@ -1744,11 +1693,11 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
         sizePath.append("_");
         sizePath.append(std::to_string(128));
 
-        string offsetPath = std::to_string(blocks[iblk].ox);
+        string offsetPath = std::to_string(blocks[iblk].offsets.getX());
         offsetPath.append("_");
-        offsetPath.append(std::to_string(blocks[iblk].oy));
+        offsetPath.append(std::to_string(blocks[iblk].offsets.getY()));
         offsetPath.append("_");
-        offsetPath.append(std::to_string(blocks[iblk].oz));
+        offsetPath.append(std::to_string(blocks[iblk].offsets.getZ()));
 
         // client
         http::uri_builder builder(U("/api/node/"));
@@ -1792,15 +1741,15 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
         //
         for(long k=0; k<128; k++)
         {
-            long offk = (k+blocks[iblk].boz)*sx*sy;
+            long offk = (k+blocks[iblk].blockOffsets.getZ())*sx*sy;
             long offz = k*128*128*2;
             for(long j=0; j<128; j++)
             {
-                long offj = offk + (j+blocks[iblk].boy)*sx;
+                long offj = offk + (j+blocks[iblk].blockOffsets.getY())*sx;
                 long offy = offz + j*128*2;
                 for(long i=0; i<128; i++)
                 {
-                    pData[offj + i + blocks[iblk].box] = pIn[offy + i*2];
+                    pData[offj + i + blocks[iblk].blockOffsets.getX()] = pIn[offy + i*2];
                 }
             }
         }
@@ -1829,27 +1778,13 @@ int testMultipleBlockStream(string server, string uuid, string dataName)
     }
 
     //
-    TiffIO tif;
+    BioMedicalDataIO output;
 
-    tif.setResX(0.25f);
-    tif.setResY(0.25f);
-    tif.setResZ(1.00f);
-
-    tif.setDataType(USHORT);
-
-    //
-    tif.setDimx(sx);
-    tif.setDimy(sy);
-    tif.setDimz(1); // mip
-    tif.setDimc(1);
-    tif.setDimt(1);
-
-    //
-    tif.setData((void*)pBuffer);
-    tif.setFileName(const_cast<char *>("./testMultipleBlockStream.tif"));
-
-    //
-    tif.write();
+    output.m_Data->setData((void *)pBuffer);
+    output.m_Data->setDataType(USHORT);
+    output.m_Data->size.setXYZCT(sx,sy,1,1,1);
+    output.m_Data->spacing.setXYZCT(0.25,0.25,1.0,1.0,1.0);
+    output.writeData(string("./testMultipleBlockStream.tif"));
 
     //
     del1dp<unsigned char>(p);
@@ -1963,8 +1898,8 @@ int main(int argc, char *argv[])
         // dataManager.setBufferLUT(32,32,32,1,4,8,4,3,3,FLAGS_branch); // customized for specific data size here
         // dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
 
-        dataManager.setBufferLUT(32,32,32,1,1,1,4,1,1,FLAGS_branch);
-        dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
+        //dataManager.setBufferLUT(32,32,32,1,1,1,4,1,1,FLAGS_branch);
+        //dataManager.putBufferData(tiles, FLAGS_server, FLAGS_uuid, FLAGS_name, FLAGS_buffer);
     }
     else
     {
