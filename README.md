@@ -2,7 +2,7 @@
 a research data management software
 
 ## compile with cmake
-Install [LibTIFF][] for reading/writing TIFF images.
+Install [[BioMedicalDataIO]][] for reading/writing biomedical images. [LibTIFF][] is needed for compile biomedicaldataio lib. 
 
 Install [C++ REST SDK][] for using REST API and reading/writing JSON file. To compile [C++ REST SDK][], [boost][], [OpenSSL][], and [WebSocket++][] are required.
 
@@ -27,7 +27,7 @@ Data can also be uploaded to DVID branch by branch and buffer by buffer.
 By default, "methods" set as "POST" and the tile list is required.
   
 ##
-
+[BioMedicalDataIO]: https://github.com/glaivesoft/biomedicaldataio
 [LibTIFF]: http://libtiff.org
 [C++ REST SDK]:https://github.com/Microsoft/cpprestsdk
 [gflags]: https://github.com/gflags/gflags
