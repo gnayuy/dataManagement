@@ -2,7 +2,7 @@
 a research data management software
 
 ## compile with cmake
-Install [[BioMedicalDataIO]][] for reading/writing biomedical images. [LibTIFF][] is needed for compile biomedicaldataio lib. 
+Install [BioMedicalDataIO][] for reading/writing biomedical images. [LibTIFF][] is needed for compile biomedicaldataio lib. 
 
 Install [C++ REST SDK][] for using REST API and reading/writing JSON file. To compile [C++ REST SDK][], [boost][], [OpenSSL][], and [WebSocket++][] are required.
 
