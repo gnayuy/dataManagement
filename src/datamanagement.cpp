@@ -947,7 +947,7 @@ int DataManager::getData(utility::string_t server, utility::string_t uuid, utili
 
     //
     long size = 4*sx*sy*sz; // in bytes
-    m_Data->newData(size);
+    m_Data->zeros(size);
     rawptr_buffer<unsigned char> rawBuf((unsigned char*)(m_Data->data()), size);
     //concurrency::streams::ostream stream(rawBuf);
 
